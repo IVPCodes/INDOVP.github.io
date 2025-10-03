@@ -78,7 +78,6 @@
       box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
     }
 
-    /* Fade transition for tabs */
     .tab-content {
       opacity: 0;
       max-height: 0;
@@ -96,7 +95,7 @@
 
     .tab-content.active {
       opacity: 1;
-      max-height: 2000px; /* enough for content */
+      max-height: 2000px;
       pointer-events: auto;
       position: relative;
     }
@@ -117,7 +116,6 @@
       text-decoration: underline;
     }
 
-    /* Dark mode toggle button */
     #darkModeToggle {
       position: fixed;
       top: 15px;
@@ -144,6 +142,14 @@
       padding: 5px 0;
       font-weight: 600;
     }
+
+    canvas {
+      border: 1px solid #555;
+      background: #fff;
+    }
+    body.dark canvas {
+      background: #111;
+    }
   </style>
 </head>
 <body>
@@ -158,7 +164,6 @@
   </div>
 
   <div class="content">
-    <!-- About Me -->
     <div id="about" class="tab-content active">
       <h2>About Me</h2>
       <img src="profile.png" alt="INDOVP">
@@ -167,36 +172,52 @@
       <p>Why are you reading this?</p>
     </div>
 
-    <!-- Mini-Games -->
     <div id="games" class="tab-content">
       <h2>Mini-Games</h2>
       <div id="ssp-game">
-        <h3>🎮 Rock-Paper-Scissors</h3>
-        <p>Choose an option:</p>
+        <h3>🪨✂️📄 Rock-Paper-Scissors</h3>
         <button onclick="playSSP('Rock')">🪨 Rock</button>
         <button onclick="playSSP('Scissors')">✌️ Scissors</button>
         <button onclick="playSSP('Paper')">📄 Paper</button>
         <p id="ssp-result"></p>
       </div>
+
+      <div id="snake-game">
+        <h3>🐍 Snake</h3>
+        <canvas id="snakeCanvas" width="300" height="300"></canvas>
+        <p id="snake-result"></p>
+      </div>
+
+      <div id="reaction-game">
+        <h3>⚡ Reaction Time Test</h3>
+        <button id="startReaction">Start</button>
+        <p id="reaction-result"></p>
+      </div>
+
+      <div id="trivia-game">
+        <h3>❓ Minecraft Trivia</h3>
+        <p id="trivia-question">Press start to play!</p>
+        <button onclick="startTrivia()">Start Trivia</button>
+        <div id="trivia-options"></div>
+        <p id="trivia-result"></p>
+      </div>
     </div>
 
-    <!-- Links -->
     <div id="links" class="tab-content">
       <h2>Links</h2>
       <p>My YouTube channel:</p>
       <a href="https://www.youtube.com/@INDOVP" target="_blank">➡️ INDOVP on YouTube</a><br/><br/>
-      
+
       <p>My Twitch channel:</p>
       <a href="https://www.twitch.tv/jo31erde" target="_blank">➡️ twitch.tv/jo31erde</a><br/><br/>
-      
+
       <p>My Twitter:</p>
       <a href="https://twitter.com/INDOVP" target="_blank">➡️ @INDOVP</a><br/><br/>
-      
+
       <p>Most popular video:</p>
       <iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
     </div>
 
-    <!-- Friends -->
     <div id="friends" class="tab-content">
       <h2>Friends</h2>
       <ul class="friends-list">
@@ -227,7 +248,6 @@
     const darkModeToggle = document.getElementById('darkModeToggle');
     const body = document.body;
 
-    // Prüfe beim Laden, ob darkMode in localStorage gespeichert ist
     window.addEventListener('load', () => {
       if(localStorage.getItem('darkMode') === 'enabled'){
         body.classList.add('dark');
@@ -239,7 +259,6 @@
 
     darkModeToggle.addEventListener('click', () => {
       body.classList.toggle('dark');
-
       if(body.classList.contains('dark')){
         darkModeToggle.textContent = 'Switch to Light Mode';
         localStorage.setItem('darkMode', 'enabled');
@@ -254,7 +273,6 @@
       const buttons = document.querySelectorAll('.tab-button');
 
       buttons.forEach(btn => btn.classList.remove('active'));
-
       contents.forEach(content => {
         if(content.id === tabId){
           content.classList.add('active');
@@ -262,7 +280,6 @@
           content.classList.remove('active');
         }
       });
-
       event.target.classList.add('active');
     }
 
@@ -270,7 +287,6 @@
       const choices = ['Rock', 'Paper', 'Scissors'];
       const botChoice = choices[Math.floor(Math.random() * choices.length)];
       let result = '';
-
       if (playerChoice === botChoice) {
         result = `${playerChoice} vs ${botChoice} ... It's a tie!`;
       } else if (
@@ -282,9 +298,125 @@
       } else {
         result = `${playerChoice} vs ${botChoice} ... You lost!`;
       }
-
       document.getElementById('ssp-result').innerText = result;
     }
+
+    // Snake
+    const canvas = document.getElementById("snakeCanvas");
+    const ctx = canvas.getContext("2d");
+    let box = 10;
+    let snake = [{x: 150, y: 150}];
+    let direction;
+    let food = {x: Math.floor(Math.random()*30)*10, y: Math.floor(Math.random()*30)*10};
+
+    document.addEventListener("keydown", e => {
+      if(e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+      else if(e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+      else if(e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+      else if(e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    });
+
+    function drawSnake(){
+      ctx.clearRect(0,0,300,300);
+      snake.forEach((s,i)=>{
+        ctx.fillStyle = i===0 ? "green" : "lime";
+        ctx.fillRect(s.x, s.y, box, box);
+      });
+      ctx.fillStyle = "red";
+      ctx.fillRect(food.x, food.y, box, box);
+
+      let head = {...snake[0]};
+      if(direction === "UP") head.y -= box;
+      if(direction === "DOWN") head.y += box;
+      if(direction === "LEFT") head.x -= box;
+      if(direction === "RIGHT") head.x += box;
+
+      if(head.x === food.x && head.y === food.y){
+        food = {x: Math.floor(Math.random()*30)*10, y: Math.floor(Math.random()*30)*10};
+      } else {
+        snake.pop();
+      }
+
+      if(head.x<0 || head.y<0 || head.x>=300 || head.y>=300 || snake.some(s=>s.x===head.x && s.y===head.y)){
+        clearInterval(game);
+        document.getElementById('snake-result').innerText = "Game Over!";
+      }
+      snake.unshift(head);
+    }
+    let game = setInterval(drawSnake, 100);
+
+    // Reaction Game
+    const startBtn = document.getElementById('startReaction');
+    const reactionResult = document.getElementById('reaction-result');
+    let startTime;
+    startBtn.addEventListener('click', ()=>{
+      reactionResult.innerText = "Wait for green...";
+      startBtn.disabled = true;
+      setTimeout(()=>{
+        document.body.style.background = "green";
+        startTime = Date.now();
+      }, Math.random()*3000+2000);
+    });
+    document.body.addEventListener('click', ()=>{
+      if(startTime){
+        let time = Date.now()-startTime;
+        reactionResult.innerText = `Your reaction: ${time} ms`;
+        document.body.style.background = "";
+        startBtn.disabled = false;
+        startTime = null;
+      }
+    });
+
+    // Trivia
+    const triviaQuestions = [
+      {q:"What is needed to craft a crafting table?", options:["4 planks","4 sticks","4 dirt"], answer:0},
+      {q:"Which mob explodes?", options:["Zombie","Creeper","Skeleton"], answer:1},
+      {q:"What tool is used to mine diamonds?", options:["Stone pickaxe","Iron pickaxe","Wooden pickaxe"], answer:1}
+    ];
+    let triviaIndex=0;
+    function startTrivia(){
+      triviaIndex=0;
+      showTrivia();
+    }
+    function showTrivia(){
+      if(triviaIndex>=triviaQuestions.length){
+        document.getElementById('trivia-result').innerText = "Trivia Finished!";
+        return;
+      }
+      const t=triviaQuestions[triviaIndex];
+      document.getElementById('trivia-question').innerText = t.q;
+      const optionsDiv=document.getElementById('trivia-options');
+      optionsDiv.innerHTML="";
+      t.options.forEach((opt,i)=>{
+        const btn=document.createElement('button');
+        btn.innerText=opt;
+        btn.onclick=()=>{
+          if(i===t.answer){
+            document.getElementById('trivia-result').innerText = "Correct!";
+          } else {
+            document.getElementById('trivia-result').innerText = "Wrong!";
+          }
+          triviaIndex++;
+          showTrivia();
+        };
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    // Konami Code
+    const konami=["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+    let position=0;
+    document.addEventListener('keydown',e=>{
+      if(e.key===konami[position]){
+        position++;
+        if(position===konami.length){
+          window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ","_blank");
+          position=0;
+        }
+      } else {
+        position=0;
+      }
+    });
   </script>
 </body>
 </html>
