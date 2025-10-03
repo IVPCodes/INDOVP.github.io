@@ -2,28 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>INDOVP</title>
   <style>
     :root {
       --bg-light: #f0f0f0;
-      --bg-dark: #1e1e1e;
-      --text-light: #000;
-      --text-dark: #fff;
-      --card-light: #fff;
-      --card-dark: #2c2c2c;
-      --blue: #2a6cf4;
+      --bg-dark: #121212;
+      --text-light: #222;
+      --text-dark: #eee;
+      --primary-color: #2a6cf4;
+      --primary-hover: #1d4bd1;
     }
-
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       background-color: var(--bg-light);
       color: var(--text-light);
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.4s, color 0.4s;
     }
-
-    body.dark-mode {
+    body.dark {
       background-color: var(--bg-dark);
       color: var(--text-dark);
     }
@@ -31,10 +28,11 @@
     .tab-container {
       display: flex;
       justify-content: center;
-      background-color: var(--blue);
+      background-color: var(--primary-color);
       padding: 15px 0;
       gap: 20px;
-      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
     }
 
     .tab-button {
@@ -45,114 +43,128 @@
       border-radius: 10px 10px 0 0;
       cursor: pointer;
       transition: background 0.3s;
-      white-space: nowrap;
+      color: var(--text-light);
     }
 
     .tab-button:hover,
     .tab-button.active {
       background-color: #e0e0e0;
     }
-
-    .dark-mode .tab-button {
-      background-color: #444;
-      color: white;
+    body.dark .tab-button {
+      background-color: #333;
+      color: var(--text-dark);
+    }
+    body.dark .tab-button:hover,
+    body.dark .tab-button.active {
+      background-color: #555;
     }
 
     .content {
       max-width: 800px;
       margin: auto;
-      background-color: var(--card-light);
+      background-color: white;
       padding: 30px;
       border-radius: 0 0 12px 12px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
       min-height: 300px;
-      animation: fadeIn 0.5s ease-in-out;
+      position: relative;
+      overflow: hidden;
+      transition: background-color 0.4s, color 0.4s;
+      z-index: 1;
+    }
+    body.dark .content {
+      background-color: #222;
+      color: var(--text-dark);
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
     }
 
-    .dark-mode .content {
-      background-color: var(--card-dark);
-    }
-
+    /* Fade transition for tabs */
     .tab-content {
-      display: none;
       opacity: 0;
-      transition: opacity 0.3s;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.4s ease, max-height 0.4s ease;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 30px;
+      box-sizing: border-box;
     }
 
     .tab-content.active {
-      display: block;
       opacity: 1;
+      max-height: 2000px; /* genug für Inhalt */
+      pointer-events: auto;
+      position: relative;
     }
 
     img {
       width: 100px;
       border-radius: 50%;
+      display: block;
+      margin-bottom: 15px;
     }
 
     a {
-      color: var(--blue);
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    a:hover {
+      color: var(--primary-hover);
+      text-decoration: underline;
     }
 
-    .dark-mode a {
-      color: #8ab4f8;
-    }
-
-    #theme-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: #ccc;
+    /* Dark mode toggle button */
+    #darkModeToggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: var(--primary-color);
       border: none;
-      padding: 5px 10px;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-
-    .dark-mode #theme-toggle {
-      background-color: #333;
       color: white;
+      padding: 10px 15px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      z-index: 10;
+      transition: background-color 0.3s;
+    }
+    #darkModeToggle:hover {
+      background: var(--primary-hover);
     }
 
-    ul.friend-list {
+    ul.friends-list {
       list-style: none;
-      padding: 0;
-      columns: 2;
-      column-gap: 40px;
-      font-size: 18px;
+      padding-left: 0;
     }
-
-    ul.friend-list li {
-      margin-bottom: 8px;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    ul.friends-list li {
+      padding: 5px 0;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
 
-  <!-- 🌗 Dark Mode Button -->
-  <button id="theme-toggle">Toggle Theme</button>
+  <button id="darkModeToggle">Switch to Dark Mode</button>
 
-  <!-- 🔳 Tabs -->
   <div class="tab-container">
     <button class="tab-button active" onclick="openTab('about')">🧍 About Me</button>
     <button class="tab-button" onclick="openTab('games')">🎮 Mini-Games</button>
-    <button class="tab-button" onclick="openTab('friends')">👥 Friends</button>
     <button class="tab-button" onclick="openTab('links')">🔗 Links</button>
+    <button class="tab-button" onclick="openTab('friends')">👥 Friends</button>
   </div>
 
-  <!-- 📦 Content -->
   <div class="content">
-
     <!-- About Me -->
     <div id="about" class="tab-content active">
       <h2>About Me</h2>
-      <img src="https://yt3.googleusercontent.com/pO-y1fftvWAFkn7f7VFQlRoq0YKaVzN2mk5s15TaBiZUzArfRVOYBdL-kf_MI-6JMwtIteikoko=s160-c-k-c0x00ffffff-no-rj" alt="INDOVP">
-      <p>Hey! I'm <strong>INDOVP</strong> 👋 Welcome to my official website!</p>
-      <p>I create content around <strong>Roblox</strong>, <strong>Brawl Stars</strong>, and sometimes <strong>Minecraft</strong>. I'm from NRW, Germany, and I try to bring fun and entertainment to my viewers!</p>
+      <img src="https://yt3.googleusercontent.com/pO-y1fftvWAFkn7f7VFQlRoq0YKaVzN2mk5s15TaBiZUzArfRVOYBdL-kf_MI-6JMwtIteikoko=s160-c-k-c0x00ffffff-no-rj=s160-c-k-c0x00ffffff-no-rj" alt="INDOVP">
+      <p>Hello! I'm INDOVP – welcome to my website! Here you'll find info about me, data, links, interesting facts, events, mini-games and much more! 😎</p>
+      <p>I come from good old Germany/NRW and if I make videos at all, it's mostly about Roblox, Brawl Stars and a bit of Minecraft.</p>
+      <p>Why are you reading this?</p>
     </div>
 
     <!-- Mini-Games -->
@@ -161,17 +173,33 @@
       <div id="ssp-game">
         <h3>🎮 Rock-Paper-Scissors</h3>
         <p>Choose an option:</p>
-        <button onclick="playSSP('Scissors')">✌️ Scissors</button>
         <button onclick="playSSP('Rock')">🪨 Rock</button>
+        <button onclick="playSSP('Scissors')">✌️ Scissors</button>
         <button onclick="playSSP('Paper')">📄 Paper</button>
         <p id="ssp-result"></p>
       </div>
     </div>
 
+    <!-- Links -->
+    <div id="links" class="tab-content">
+      <h2>Links</h2>
+      <p>My YouTube channel:</p>
+      <a href="https://www.youtube.com/@INDOVP" target="_blank">➡️ INDOVP on YouTube</a><br/><br/>
+      
+      <p>My Twitch channel:</p>
+      <a href="https://www.twitch.tv/jo31erde" target="_blank">➡️ twitch.tv/jo31erde</a><br/><br/>
+      
+      <p>My Twitter:</p>
+      <a href="https://twitter.com/INDOVP" target="_blank">➡️ @INDOVP</a><br/><br/>
+      
+      <p>Most popular video:</p>
+      <iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
+    </div>
+
     <!-- Friends -->
     <div id="friends" class="tab-content">
       <h2>Friends</h2>
-      <ul class="friend-list">
+      <ul class="friends-list">
         <li>Jenbi</li>
         <li>Fablo</li>
         <li>Gustav</li>
@@ -193,64 +221,57 @@
         <li>Johann</li>
       </ul>
     </div>
-
-    <!-- Links -->
-    <div id="links" class="tab-content">
-      <h2>Social Links</h2>
-      <p>📺 YouTube: <a href="https://www.youtube.com/@INDOVP" target="_blank">@INDOVP</a></p>
-      <p>🎮 Twitch: <a href="https://www.twitch.tv/jo31erde" target="_blank">@jo31erde</a></p>
-      <!-- Optional: Add more here -->
-      <!-- <p>📸 Instagram: <a href="#">@yourhandle</a></p> -->
-
-      <br/>
-      <h3>Most Popular Video:</h3>
-      <iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
-    </div>
-
   </div>
 
-  <!-- ⚙️ Scripts -->
   <script>
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+
+    darkModeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      if(body.classList.contains('dark')){
+        darkModeToggle.textContent = 'Switch to Light Mode';
+      } else {
+        darkModeToggle.textContent = 'Switch to Dark Mode';
+      }
+    });
+
     function openTab(tabId) {
       const contents = document.querySelectorAll('.tab-content');
       const buttons = document.querySelectorAll('.tab-button');
 
-      contents.forEach(content => {
-        content.classList.remove('active');
-      });
-
       buttons.forEach(btn => btn.classList.remove('active'));
 
-      document.getElementById(tabId).classList.add('active');
+      contents.forEach(content => {
+        if(content.id === tabId){
+          content.classList.add('active');
+        } else {
+          content.classList.remove('active');
+        }
+      });
+
       event.target.classList.add('active');
     }
 
     function playSSP(playerChoice) {
-      const choices = ['Scissors', 'Rock', 'Paper'];
-      const botChoice = choices[Math.floor(Math.random() * 3)];
+      const choices = ['Rock', 'Paper', 'Scissors'];
+      const botChoice = choices[Math.floor(Math.random() * choices.length)];
       let result = '';
 
       if (playerChoice === botChoice) {
-        result = `${playerChoice} vs ${botChoice} ... It's a draw!`;
+        result = `${playerChoice} vs ${botChoice} ... It's a tie!`;
       } else if (
-        (playerChoice === 'Scissors' && botChoice === 'Paper') ||
         (playerChoice === 'Rock' && botChoice === 'Scissors') ||
+        (playerChoice === 'Scissors' && botChoice === 'Paper') ||
         (playerChoice === 'Paper' && botChoice === 'Rock')
       ) {
-        result = `${playerChoice} vs ${botChoice} ... YOU WIN! 🎉`;
+        result = `${playerChoice} vs ${botChoice} ... YOU WIN!`;
       } else {
-        result = `${playerChoice} vs ${botChoice} ... You lost. 😢`;
+        result = `${playerChoice} vs ${botChoice} ... You lost!`;
       }
 
       document.getElementById('ssp-result').innerText = result;
     }
-
-    // Dark/Light Mode Toggle
-    const toggleBtn = document.getElementById('theme-toggle');
-    toggleBtn.addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-    });
   </script>
-
 </body>
 </html>
