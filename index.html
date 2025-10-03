@@ -1,422 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>INDOVP</title>
-  <style>
-    :root {
-      --bg-light: #f0f0f0;
-      --bg-dark: #121212;
-      --text-light: #222;
-      --text-dark: #eee;
-      --primary-color: #2a6cf4;
-      --primary-hover: #1d4bd1;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: var(--bg-light);
-      color: var(--text-light);
-      transition: background-color 0.4s, color 0.4s;
-    }
-    body.dark {
-      background-color: var(--bg-dark);
-      color: var(--text-dark);
-    }
-
-    .tab-container {
-      display: flex;
-      justify-content: center;
-      padding: 15px 0;
-      gap: 20px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .tab-button {
-      background-color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 10px 10px 0 0;
-      cursor: pointer;
-      transition: background 0.3s, box-shadow 0.3s;
-      color: var(--text-light);
-    }
-    .tab-button:hover,
-    .tab-button.active {
-      background-color: #e0e0e0;
-    }
-    body.dark .tab-button {
-      background-color: var(--primary-color);
-      color: white;
-      box-shadow: 0 0 10px rgba(42,108,244,0.8);
-    }
-    body.dark .tab-button:hover,
-    body.dark .tab-button.active {
-      background-color: var(--primary-hover);
-      box-shadow: 0 0 15px rgba(29,75,209,1);
-    }
-
-    .content {
-      max-width: 800px;
-      margin: auto;
-      background-color: white;
-      padding: 30px;
-      border-radius: 0 0 12px 12px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      min-height: 300px;
-      position: relative;
-      overflow: hidden;
-      transition: background-color 0.4s, color 0.4s;
-      z-index: 1;
-    }
-    body.dark .content {
-      background-color: #222;
-      color: var(--text-dark);
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
-    }
-
-    .tab-content {
-      opacity: 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: opacity 0.4s ease, max-height 0.4s ease;
-      pointer-events: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: 30px;
-      box-sizing: border-box;
-    }
-    .tab-content.active {
-      opacity: 1;
-      max-height: 2000px;
-      pointer-events: auto;
-      position: relative;
-    }
-
-    img {
-      width: 100px;
-      border-radius: 50%;
-      display: block;
-      margin-bottom: 15px;
-    }
-
-    a {
-      color: var(--primary-color);
-      text-decoration: none;
-    }
-    a:hover {
-      color: var(--primary-hover);
-      text-decoration: underline;
-    }
-
-    #darkModeToggle {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      background: var(--primary-color);
-      border: none;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 14px;
-      z-index: 10;
-      transition: background-color 0.3s;
-    }
-    #darkModeToggle:hover {
-      background: var(--primary-hover);
-    }
-
-    ul.friends-list {
-      list-style: none;
-      padding-left: 0;
-    }
-    ul.friends-list li {
-      padding: 5px 0;
-      font-weight: 600;
-    }
-    canvas {
-      border: 2px solid #444;
-      margin-top: 10px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>INDOVP</title>
+<style>
+:root {
+  --bg-light: #f0f0f0;
+  --bg-dark: #121212;
+  --text-light: #222;
+  --text-dark: #eee;
+  --primary-color: #2a6cf4;
+  --primary-hover: #1d4bd1;
+}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: var(--bg-light);
+  color: var(--text-light);
+  transition: background-color 0.4s, color 0.4s;
+}
+body.dark {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+.tab-container {
+  display: flex;
+  justify-content: center;
+  padding: 15px 0;
+  gap: 20px;
+}
+.tab-button {
+  background-color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.tab-button:hover, .tab-button.active {
+  background-color: #e0e0e0;
+}
+body.dark .tab-button {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 0 10px rgba(42,108,244,0.8);
+}
+body.dark .tab-button:hover, body.dark .tab-button.active {
+  background-color: var(--primary-hover);
+  box-shadow: 0 0 15px rgba(29,75,209,1);
+}
+.content {
+  max-width: 800px;
+  margin: auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  min-height: 300px;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.4s, color 0.4s;
+}
+body.dark .content {
+  background-color: #222;
+  color: var(--text-dark);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active { display: block; }
+img { width: 100px; border-radius: 50%; display: block; margin-bottom: 15px; }
+a { color: var(--primary-color); text-decoration: none; }
+a:hover { color: var(--primary-hover); text-decoration: underline; }
+#darkModeToggle {
+  position: fixed; top: 15px; right: 15px;
+  background: var(--primary-color);
+  border: none; color: white;
+  padding: 10px 15px; border-radius: 25px;
+  cursor: pointer; font-size: 14px; z-index: 10;
+}
+#darkModeToggle:hover { background: var(--primary-hover); }
+ul.friends-list { list-style: none; padding-left: 0; }
+ul.friends-list li { padding: 5px 0; font-weight: 600; }
+canvas { border: 2px solid #444; margin-top: 10px; }
+.gameContent { margin-top: 15px; }
+</style>
 </head>
 <body>
 
-  <button id="darkModeToggle">Switch to Dark Mode</button>
+<button id="darkModeToggle">Switch to Dark Mode</button>
 
-  <div class="tab-container">
-    <button class="tab-button active" onclick="openTab('about')">🧍 About Me</button>
-    <button class="tab-button" onclick="openTab('games')">🎮 Mini-Games</button>
-    <button class="tab-button" onclick="openTab('links')">🔗 Links</button>
-    <button class="tab-button" onclick="openTab('friends')">👥 Friends</button>
+<div class="tab-container">
+  <button class="tab-button active" onclick="openTab('about')">🧍 About Me</button>
+  <button class="tab-button" onclick="openTab('games')">🎮 Mini-Games</button>
+  <button class="tab-button" onclick="openTab('links')">🔗 Links</button>
+  <button class="tab-button" onclick="openTab('friends')">👥 Friends</button>
+</div>
+
+<div class="content">
+
+  <!-- About -->
+  <div id="about" class="tab-content active">
+    <h2>About Me</h2>
+    <img src="profile.png" alt="INDOVP">
+    <p>Hello! I'm INDOVP – welcome to my website! Here you'll find info about me, data, links, interesting facts, events, mini-games and much more! 😎</p>
+    <p>I come from good old Germany/NRW and if I make videos at all, it's mostly about Roblox, Brawl Stars and a bit of Minecraft.</p>
+    <p>Why are you reading this?</p>
   </div>
 
-  <div class="content">
-    <!-- About Me -->
-    <div id="about" class="tab-content active">
-      <h2>About Me</h2>
-      <img src="profile.png" alt="INDOVP">
-      <p>Hello! I'm INDOVP – welcome to my website! Here you'll find info about me, data, links, interesting facts, events, mini-games and much more! 😎</p>
-      <p>I come from good old Germany/NRW and if I make videos at all, it's mostly about Roblox, Brawl Stars and a bit of Minecraft.</p>
-      <p>Why are you reading this?</p>
+  <!-- Games -->
+  <div id="games" class="tab-content">
+    <h2>Mini-Games</h2>
+    <select id="gameSelect" onchange="showGame()">
+      <option value="">Select a game</option>
+      <option value="ssp">🪨 Rock-Paper-Scissors</option>
+      <option value="snake">🐍 Snake</option>
+      <option value="reaction">⚡ Reaction Time</option>
+      <option value="trivia">❓ Minecraft Trivia</option>
+    </select>
+
+    <div id="ssp-game" class="gameContent">
+      <h3>🎮 Rock-Paper-Scissors</h3>
+      <button onclick="playSSP('Rock')">🪨 Rock</button>
+      <button onclick="playSSP('Scissors')">✌️ Scissors</button>
+      <button onclick="playSSP('Paper')">📄 Paper</button>
+      <p id="ssp-result"></p>
+      <p>Wins: <span id="sspWins">0</span> | Losses: <span id="sspLoss">0</span></p>
     </div>
 
-    <!-- Mini-Games -->
-    <div id="games" class="tab-content">
-      <h2>Mini-Games</h2>
-      <div id="ssp-game">
-        <h3>🎮 Rock-Paper-Scissors</h3>
-        <button onclick="playSSP('Rock')">🪨 Rock</button>
-        <button onclick="playSSP('Scissors')">✌️ Scissors</button>
-        <button onclick="playSSP('Paper')">📄 Paper</button>
-        <p id="ssp-result"></p>
-      </div>
-      <hr/>
+    <div id="snake-game" class="gameContent">
       <h3>🐍 Snake</h3>
       <canvas id="snakeCanvas" width="300" height="300"></canvas>
-      <p id="snakeScore">Score: 0</p>
-      <hr/>
+      <p>Score: <span id="snakeScore">0</span></p>
+      <p>Wins: <span id="snakeWins">0</span> | Losses: <span id="snakeLoss">0</span></p>
+      <p>Press "R" to reset the game</p>
+    </div>
+
+    <div id="reaction-game" class="gameContent">
       <h3>⚡ Reaction Time Game</h3>
       <button onclick="startReactionGame()">Start</button>
       <p id="reactionResult"></p>
-      <hr/>
+      <p>Wins: <span id="reactionWins">0</span> | Losses: <span id="reactionLoss">0</span></p>
+    </div>
+
+    <div id="trivia-game" class="gameContent">
       <h3>❓ Minecraft Trivia</h3>
       <button onclick="startTrivia()">Start Trivia</button>
       <p id="triviaQuestion"></p>
       <input type="text" id="triviaAnswer" placeholder="Your answer">
       <button onclick="submitTrivia()">Submit</button>
       <p id="triviaResult"></p>
-    </div>
-
-    <!-- Links -->
-    <div id="links" class="tab-content">
-      <h2>Links</h2>
-      <p>My YouTube channel:</p>
-      <a href="https://www.youtube.com/@INDOVP" target="_blank">➡️ INDOVP on YouTube</a><br/><br/>
-      
-      <p>My Twitch channel:</p>
-      <a href="https://www.twitch.tv/jo31erde" target="_blank">➡️ twitch.tv/jo31erde</a><br/><br/>
-      
-      <p>My Twitter:</p>
-      <a href="https://twitter.com/INDOVP" target="_blank">➡️ @INDOVP</a><br/><br/>
-      
-      <p>Most popular video:</p>
-      <iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
-    </div>
-
-    <!-- Friends -->
-    <div id="friends" class="tab-content">
-      <h2>Friends</h2>
-      <ul class="friends-list">
-        <li>Jenbi</li>
-        <li>Fablo</li>
-        <li>Gustav</li>
-        <li>Maksim</li>
-        <li>Felix</li>
-        <li>Fabian</li>
-        <li>Riza</li>
-        <li>Sico</li>
-        <li>Ismail</li>
-        <li>VKLuca</li>
-        <li>Jayden</li>
-        <li>Nico</li>
-        <li>Daniel</li>
-        <li>Svend</li>
-        <li>Tahlia</li>
-        <li>Arik</li>
-        <li>Gehas</li>
-        <li>Tim</li>
-        <li>Johann</li>
-      </ul>
+      <p>Wins: <span id="triviaWins">0</span> | Losses: <span id="triviaLoss">0</span></p>
     </div>
   </div>
 
-  <script>
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const body = document.body;
+  <!-- Links -->
+  <div id="links" class="tab-content">
+    <h2>Links</h2>
+    <p>My YouTube channel:</p>
+    <a href="https://www.youtube.com/@INDOVP" target="_blank">➡️ INDOVP on YouTube</a><br/><br/>
+    <p>My Twitch channel:</p>
+    <a href="https://www.twitch.tv/jo31erde" target="_blank">➡️ twitch.tv/jo31erde</a><br/><br/>
+    <p>My Twitter:</p>
+    <a href="https://twitter.com/INDOVP" target="_blank">➡️ @INDOVP</a><br/><br/>
+    <p>Most popular video:</p>
+    <iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
+  </div>
 
-    window.addEventListener('load', () => {
-      if(localStorage.getItem('darkMode') === 'enabled'){
-        body.classList.add('dark');
-        darkModeToggle.textContent = 'Switch to Light Mode';
-      } else {
-        darkModeToggle.textContent = 'Switch to Dark Mode';
-      }
-    });
+  <!-- Friends -->
+  <div id="friends" class="tab-content">
+    <h2>Friends</h2>
+    <ul class="friends-list">
+      <li>Jenbi</li><li>Fablo</li><li>Gustav</li><li>Maksim</li><li>Felix</li>
+      <li>Fabian</li><li>Riza</li><li>Sico</li><li>Ismail</li><li>VKLuca</li>
+      <li>Jayden</li><li>Nico</li><li>Daniel</li><li>Svend</li><li>Tahlia</li>
+      <li>Arik</li><li>Gehas</li><li>Tim</li><li>Johann</li>
+    </ul>
+  </div>
 
-    darkModeToggle.addEventListener('click', () => {
-      body.classList.toggle('dark');
-      if(body.classList.contains('dark')){
-        darkModeToggle.textContent = 'Switch to Light Mode';
-        localStorage.setItem('darkMode', 'enabled');
-      } else {
-        darkModeToggle.textContent = 'Switch to Dark Mode';
-        localStorage.setItem('darkMode', 'disabled');
-      }
-    });
+</div>
 
-    function openTab(tabId) {
-      const contents = document.querySelectorAll('.tab-content');
-      const buttons = document.querySelectorAll('.tab-button');
-      buttons.forEach(btn => btn.classList.remove('active'));
-      contents.forEach(content => {
-        if(content.id === tabId){
-          content.classList.add('active');
-        } else {
-          content.classList.remove('active');
-        }
-      });
-      event.target.classList.add('active');
-    }
+<script>
+const darkModeToggle = document.getElementById('darkModeToggle');
+const body = document.body;
 
-    function playSSP(playerChoice) {
-      const choices = ['Rock', 'Paper', 'Scissors'];
-      const botChoice = choices[Math.floor(Math.random() * choices.length)];
-      let result = '';
-      if (playerChoice === botChoice) {
-        result = `${playerChoice} vs ${botChoice} ... It's a tie!`;
-      } else if (
-        (playerChoice === 'Rock' && botChoice === 'Scissors') ||
-        (playerChoice === 'Scissors' && botChoice === 'Paper') ||
-        (playerChoice === 'Paper' && botChoice === 'Rock')
-      ) {
-        result = `${playerChoice} vs ${botChoice} ... YOU WIN!`;
-      } else {
-        result = `${playerChoice} vs ${botChoice} ... You lost!`;
-      }
-      document.getElementById('ssp-result').innerText = result;
-    }
+window.addEventListener('load', ()=>{
+  if(localStorage.getItem('darkMode')==='enabled'){
+    body.classList.add('dark');
+    darkModeToggle.textContent='Switch to Light Mode';
+  } else { darkModeToggle.textContent='Switch to Dark Mode'; }
+});
 
-    // Snake
-    const canvas = document.getElementById("snakeCanvas");
-    const ctx = canvas.getContext("2d");
-    const box = 15;
-    let snake = [{x: 5 * box, y: 5 * box}];
-    let direction;
-    let food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
-    let score = 0;
-    document.addEventListener("keydown", dir);
-    function dir(event) {
-      if(event.keyCode == 37 && direction != "RIGHT") direction = "LEFT";
-      else if(event.keyCode == 38 && direction != "DOWN") direction = "UP";
-      else if(event.keyCode == 39 && direction != "LEFT") direction = "RIGHT";
-      else if(event.keyCode == 40 && direction != "UP") direction = "DOWN";
-    }
-    function draw() {
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0,0,300,300);
-      for(let i=0; i<snake.length; i++){
-        ctx.fillStyle = (i==0)? "lime":"white";
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
-      }
-      ctx.fillStyle = "red";
-      ctx.fillRect(food.x, food.y, box, box);
-      let snakeX = snake[0].x;
-      let snakeY = snake[0].y;
-      if(direction == "LEFT") snakeX -= box;
-      if(direction == "UP") snakeY -= box;
-      if(direction == "RIGHT") snakeX += box;
-      if(direction == "DOWN") snakeY += box;
-      if(snakeX == food.x && snakeY == food.y){
-        score++;
-        food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
-      } else {
-        snake.pop();
-      }
-      let newHead = {x: snakeX, y: snakeY};
-      if(snakeX < 0 || snakeY < 0 || snakeX >= 300 || snakeY >= 300 || collision(newHead,snake)){
-        clearInterval(game);
-      }
-      snake.unshift(newHead);
-      document.getElementById("snakeScore").innerText = "Score: " + score;
-    }
-    function collision(head,array){
-      for(let i=0; i<array.length; i++){
-        if(head.x == array[i].x && head.y == array[i].y){ return true; }
-      }
-      return false;
-    }
-    let game = setInterval(draw,100);
+darkModeToggle.addEventListener('click', ()=>{
+  body.classList.toggle('dark');
+  if(body.classList.contains('dark')){
+    darkModeToggle.textContent='Switch to Light Mode';
+    localStorage.setItem('darkMode','enabled');
+  } else {
+    darkModeToggle.textContent='Switch to Dark Mode';
+    localStorage.setItem('darkMode','disabled');
+  }
+});
 
-    // Reaction Time Game
-    let startTime, timeout;
-    function startReactionGame(){
-      document.getElementById("reactionResult").innerText = "Wait for green...";
-      timeout = setTimeout(()=>{
-        document.getElementById("reactionResult").innerText = "CLICK NOW!";
-        startTime = Date.now();
-        document.body.onclick = ()=>{
-          let reaction = Date.now()-startTime;
-          document.getElementById("reactionResult").innerText = "Your reaction: "+reaction+"ms";
-          document.body.onclick = null;
-        }
-      },Math.random()*3000+2000);
-    }
+function openTab(tabId){
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+}
 
-    // Trivia 20 Questions
-    const triviaQuestions = [
-      {q:"What do you need to craft a crafting table?", a:"4 planks"},
-      {q:"What mob explodes?", a:"creeper"},
-      {q:"What do Endermen drop?", a:"ender pearl"},
-      {q:"Which block do you need to smelt iron?", a:"furnace"},
-      {q:"Which tool do you need to mine diamonds?", a:"iron pickaxe"},
-      {q:"What do you get from killing a cow?", a:"beef"},
-      {q:"What do you use to tame a wolf?", a:"bone"},
-      {q:"Which plant grows from bone meal?", a:"any plant"},
-      {q:"Which mob drops string?", a:"spider"},
-      {q:"Which block do you need to make a Nether portal?", a:"obsidian"},
-      {q:"Which material is used to make rails?", a:"iron"},
-      {q:"Which item is used to breed pigs?", a:"carrot"},
-      {q:"Which block is the main ingredient in TNT?", a:"gunpowder"},
-      {q:"Which mob drops feathers?", a:"chicken"},
-      {q:"What do you use to make shears?", a:"iron"},
-      {q:"Which block lets you jump higher when placed below?", a:"slime block"},
-      {q:"What do you need to make a compass?", a:"iron and redstone"},
-      {q:"Which item do villagers trade emeralds for?", a:"various, like wheat or carrots"},
-      {q:"Which block can you use to breathe underwater?", a:"conduit"},
-      {q:"Which potion effect allows you to walk on water?", a:"frost walker or water walking"}
-    ];
-    let currentTrivia = 0;
-    function startTrivia(){
-      currentTrivia=0;
-      document.getElementById("triviaQuestion").innerText = triviaQuestions[currentTrivia].q;
-    }
-    function submitTrivia(){
-      let answer = document.getElementById("triviaAnswer").value.toLowerCase().trim();
-      if(answer === triviaQuestions[currentTrivia].a){
-        document.getElementById("triviaResult").innerText = "Correct!";
-      } else {
-        document.getElementById("triviaResult").innerText = "Wrong!";
-      }
-      currentTrivia++;
-      if(currentTrivia<triviaQuestions.length){
-        document.getElementById("triviaQuestion").innerText = triviaQuestions[currentTrivia].q;
-      } else {
-        document.getElementById("triviaQuestion").innerText = "End of trivia!";
-      }
-    }
+// Dropdown
+function showGame(){
+  const g=document.getElementById('gameSelect').value;
+  document.querySelectorAll('.gameContent').forEach(d=>d.style.display='none');
+  if(g==='ssp') document.getElementById('ssp-game').style.display='block';
+  if(g==='snake') document.getElementById('snake-game').style.display='block';
+  if(g==='reaction') document.getElementById('reaction-game').style.display='block';
+  if(g==='trivia') document.getElementById('trivia-game').style.display='block';
+}
 
-    // Konami Code
-    const konami = [38,38,40,40,37,39,37,39,66,65];
-    let konamiIndex = 0;
-    document.addEventListener("keydown",(e)=>{
-      if(e.keyCode === konami[konamiIndex]){
-        konamiIndex++;
-        if(konamiIndex === konami.length){
-          window.location.href="https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-          konamiIndex=0;
-        }
-      } else {
-        konamiIndex=0;
-      }
-    });
-  </script>
-</body>
-</html>
+// SSP
+let sspWins=0, sspLoss=0;
+function playSSP(playerChoice){
+  const choices=['Rock','Paper','Scissors'];
+  const botChoice=choices[Math.floor(Math.random()*choices.length)];
+  let result='';
+  if(playerChoice===botChoice) result=`${playerChoice} vs ${botChoice} ... Tie!`;
+  else if((playerChoice==='Rock' && botChoice==='Scissors')||(playerChoice==='Scissors'&&botChoice==='Paper')||(playerChoice==='Paper'&&botChoice==='Rock')){
+    result=`${playerChoice} vs ${botChoice} ... YOU WIN!`;
+    sspWins++; document.getElementById('sspWins').innerText=sspWins;
+  } else {
+    result=`${playerChoice} vs ${botChoice} ... You lost!`;
+    sspLoss++; document.getElementById('sspLoss').innerText=sspLoss;
+  }
+  document.getElementById('ssp-result').innerText=result;
+}
+
+// Snake
+const canvas=document.getElementById("snakeCanvas");
+const ctx=canvas.getContext("2d");
+const box=15;
+let snake=[{x:5*box,y:5*box}],direction=null;
+let food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};
+let score=0, snakeWins=0, snakeLoss=0;
+document.addEventListener("keydown",dir);
+function dir(e){
+  if(e.keyCode==37 && direction!="RIGHT") direction="LEFT";
+  else if(e.keyCode==38 && direction!="DOWN") direction="UP";
+  else if(e.keyCode==39 && direction!="LEFT") direction="RIGHT";
+  else if(e.keyCode==40 && direction!="UP") direction="DOWN";
+  else if(e.key.toLowerCase()=="r") resetSnake();
+}
+function resetSnake(){
+  snake=[{x:5*box,y:5*box}]; direction=null; score=0;
+  document.getElementById("snakeScore").innerText=score;
+}
+function draw(){
+  ctx.fillStyle="#000"; ctx.fillRect(0,0,300,300);
+  for(let i=0;i<snake.length;i++){
+    ctx.fillStyle=(i==0)?"lime":"white";
+    ctx.fillRect(snake[i].x,snake[i].y,box,box);
+  }
+  ctx.fillStyle="red"; ctx.fillRect(food.x,food.y,box,box);
+  let snakeX=snake[0].x,snakeY=snake[0].y;
+  if(direction=="LEFT") snakeX-=box;
+  if(direction=="UP") snakeY-=box;
+  if(direction=="RIGHT") snakeX+=box;
+  if(direction=="DOWN") snakeY+=box;
+  if(snakeX==food.x && snakeY==food.y){
+    score++; food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};
+  } else snake.pop();
+  let newHead={x:snakeX,y:snakeY};
+  if(snakeX<0||snakeY<0||snakeX>=300||snakeY>=300||collision(newHead,snake)){
+    snakeLoss++; document.getElementById("snakeLoss").innerText=snakeLoss;
+    resetSnake();
+  }
+  snake.unshift(newHead);
+  document.getElementById("snakeScore").innerText=score;
+}
+function collision(head,array){for(let i=0;i<array.length;i++) if(head.x==array[i].x && head.y==array[i].y) return true; return false;}
+setInterval(draw,100);
+
+// Reaction Time
+let reactionWins=0,reactionLoss=0,reactionActive=false;
+function startReactionGame(){
+  if(reactionActive) return;
+  reactionActive=true; document.getElementById("reactionResult").innerText="Wait for green...";
+  setTimeout(()=>{
+    document.getElementById("reactionResult").innerText="CLICK NOW!";
+    const start=Date.now();
+    const clickHandler=()=>{
+      let reaction=Date.now()-start;
+      if(reaction<300){reactionWins++;document.getElementById("reactionWins").innerText=reactionWins;document.getElementById("reactionResult").innerText=`Fast! ${reaction}ms`;}
+      else{reactionLoss++;document.getElementById("reactionLoss").innerText=reactionLoss;document.getElementById("reactionResult").innerText=`Slow! ${reaction}ms`;}
+      reactionActive=false;
+      document.body.removeEventListener("click",clickHandler);
+    };
+    document.body.addEventListener("click",clickHandler);
+  },Math.random()*3000+2000);
+}
+
+// Trivia
+const triviaQuestions=[
+  {q:"What do you need to craft a crafting table?",a:"4 planks"},
+  {q:"What mob explodes?",a:"creeper"},
+  {q:"What do Endermen drop?",a:"ender pearl"},
+  {q:"How do you tame a wolf?",a:"bone"},
+  {q:"What tool breaks stone fastest?",a:"pickaxe"},
+  {q:"What food restores hunger?",a:"bread"},
+  {q:"Which mob shoots fireballs?",a:"blaze"},
+  {q:"What dimension has the Ender Dragon?",a:"end"},
+  {q:"What is the main material for torches?",a:"stick"},
+  {q:"Which block is used to make obsidian?",a:"lava and water"},
+  {q:"What can you use to find diamonds?",a:"iron pickaxe"},
+  {q:"What is the green slime mob called?",a:"slime"},
+  {q:"Which mob drops leather?",a:"cow"},
+  {q:"Which block do you need to make TNT?",a:"gunpowder and sand"},
+  {q:"What mob spawns in the Nether?",a:"zombie pigman"},
+  {q:"What potion makes you invisible?",a:"invisibility"},
+  {q:"Which block is red and used in redstone?",a:"redstone"},
+  {q:"What can you eat to regain health?",a:"apple"},
+  {q:"What mob explodes near players?",a:"creeper"},
+  {q:"What tool is used to shear sheep?",a:"shears"}
+];
+let triviaWins=0,triviaLoss=0,currentTrivia=0;
+function startTrivia(){currentTrivia=0;document.getElementById("triviaQuestion").innerText=triviaQuestions[currentTrivia].q;}
+function submitTrivia(){
+  let answer=document.getElementById("triviaAnswer").value.toLowerCase().trim();
+  if(answer===triviaQuestions[currentTrivia].a){triviaWins++;document.getElementById("triviaWins").innerText=triviaWins;document.getElementById("triviaResult").innerText="Correct!";}
+  else{triviaLoss++;document.getElementById("triviaLoss").innerText=triviaLoss;document.getElementById("triviaResult").innerText="Wrong!";}
+  currentTrivia++;
+  if(currentTrivia<triviaQuestions.length) document.getElementById("triviaQuestion").innerText=triviaQuestions[currentTrivia].q;
+  else document.getElementById("triviaQuestion").innerText="End of trivia!";
+}
+
+// Konami Code
+const konami=[38,38,40,40,37,39,37,39,66,
