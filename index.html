@@ -34,6 +34,7 @@
       background-color: var(--blue);
       padding: 15px 0;
       gap: 20px;
+      flex-wrap: wrap;
     }
 
     .tab-button {
@@ -44,6 +45,7 @@
       border-radius: 10px 10px 0 0;
       cursor: pointer;
       transition: background 0.3s;
+      white-space: nowrap;
     }
 
     .tab-button:hover,
@@ -88,7 +90,7 @@
     }
 
     a {
-      color: #2a6cf4;
+      color: var(--blue);
     }
 
     .dark-mode a {
@@ -111,6 +113,18 @@
       color: white;
     }
 
+    ul.friend-list {
+      list-style: none;
+      padding: 0;
+      columns: 2;
+      column-gap: 40px;
+      font-size: 18px;
+    }
+
+    ul.friend-list li {
+      margin-bottom: 8px;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -126,6 +140,7 @@
   <div class="tab-container">
     <button class="tab-button active" onclick="openTab('about')">🧍 About Me</button>
     <button class="tab-button" onclick="openTab('games')">🎮 Mini-Games</button>
+    <button class="tab-button" onclick="openTab('friends')">👥 Friends</button>
     <button class="tab-button" onclick="openTab('links')">🔗 Links</button>
   </div>
 
@@ -151,6 +166,32 @@
         <button onclick="playSSP('Paper')">📄 Paper</button>
         <p id="ssp-result"></p>
       </div>
+    </div>
+
+    <!-- Friends -->
+    <div id="friends" class="tab-content">
+      <h2>Friends</h2>
+      <ul class="friend-list">
+        <li>Jenbi</li>
+        <li>Fablo</li>
+        <li>Gustav</li>
+        <li>Maksim</li>
+        <li>Felix</li>
+        <li>Fabian</li>
+        <li>Riza</li>
+        <li>Sico</li>
+        <li>Ismail</li>
+        <li>VKLuca</li>
+        <li>Jayden</li>
+        <li>Nico</li>
+        <li>Daniel</li>
+        <li>Svend</li>
+        <li>Tahlia</li>
+        <li>Arik</li>
+        <li>Gehas</li>
+        <li>Tim</li>
+        <li>Johann</li>
+      </ul>
     </div>
 
     <!-- Links -->
