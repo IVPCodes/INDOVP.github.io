@@ -68,9 +68,7 @@ body.dark .content {
   color: var(--text-dark);
   box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
 }
-.tab-content {
-  display: none;
-}
+.tab-content { display: none; }
 .tab-content.active { display: block; }
 img { width: 100px; border-radius: 50%; display: block; margin-bottom: 15px; }
 a { color: var(--primary-color); text-decoration: none; }
@@ -86,7 +84,7 @@ a:hover { color: var(--primary-hover); text-decoration: underline; }
 ul.friends-list { list-style: none; padding-left: 0; }
 ul.friends-list li { padding: 5px 0; font-weight: 600; }
 canvas { border: 2px solid #444; margin-top: 10px; }
-.gameContent { margin-top: 15px; }
+.gameContent { margin-top: 15px; display: none; }
 </style>
 </head>
 <body>
@@ -102,7 +100,6 @@ canvas { border: 2px solid #444; margin-top: 10px; }
 
 <div class="content">
 
-  <!-- About -->
   <div id="about" class="tab-content active">
     <h2>About Me</h2>
     <img src="profile.png" alt="INDOVP">
@@ -111,11 +108,9 @@ canvas { border: 2px solid #444; margin-top: 10px; }
     <p>Why are you reading this?</p>
   </div>
 
-  <!-- Games -->
   <div id="games" class="tab-content">
     <h2>Mini-Games</h2>
     <select id="gameSelect" onchange="showGame()">
-      <option value="">Select a game</option>
       <option value="ssp">🪨 Rock-Paper-Scissors</option>
       <option value="snake">🐍 Snake</option>
       <option value="reaction">⚡ Reaction Time</option>
@@ -157,7 +152,6 @@ canvas { border: 2px solid #444; margin-top: 10px; }
     </div>
   </div>
 
-  <!-- Links -->
   <div id="links" class="tab-content">
     <h2>Links</h2>
     <p>My YouTube channel:</p>
@@ -170,7 +164,6 @@ canvas { border: 2px solid #444; margin-top: 10px; }
     <iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
   </div>
 
-  <!-- Friends -->
   <div id="friends" class="tab-content">
     <h2>Friends</h2>
     <ul class="friends-list">
@@ -184,25 +177,16 @@ canvas { border: 2px solid #444; margin-top: 10px; }
 </div>
 
 <script>
-const darkModeToggle = document.getElementById('darkModeToggle');
-const body = document.body;
-
-window.addEventListener('load', ()=>{
-  if(localStorage.getItem('darkMode')==='enabled'){
-    body.classList.add('dark');
-    darkModeToggle.textContent='Switch to Light Mode';
-  } else { darkModeToggle.textContent='Switch to Dark Mode'; }
-});
-
-darkModeToggle.addEventListener('click', ()=>{
+const darkModeToggle=document.getElementById('darkModeToggle');
+const body=document.body;
+darkModeToggle.addEventListener('click',()=>{
   body.classList.toggle('dark');
-  if(body.classList.contains('dark')){
-    darkModeToggle.textContent='Switch to Light Mode';
-    localStorage.setItem('darkMode','enabled');
-  } else {
-    darkModeToggle.textContent='Switch to Dark Mode';
-    localStorage.setItem('darkMode','disabled');
-  }
+  darkModeToggle.textContent=body.classList.contains('dark')?'Switch to Light Mode':'Switch to Dark Mode';
+  localStorage.setItem('darkMode', body.classList.contains('dark')?'enabled':'disabled');
+});
+window.addEventListener('load',()=>{
+  if(localStorage.getItem('darkMode')==='enabled') body.classList.add('dark');
+  showGame();
 });
 
 function openTab(tabId){
@@ -212,95 +196,87 @@ function openTab(tabId){
   event.target.classList.add('active');
 }
 
-// Dropdown
 function showGame(){
-  const g=document.getElementById('gameSelect').value;
-  document.querySelectorAll('.gameContent').forEach(d=>d.style.display='none');
-  if(g==='ssp') document.getElementById('ssp-game').style.display='block';
-  if(g==='snake') document.getElementById('snake-game').style.display='block';
-  if(g==='reaction') document.getElementById('reaction-game').style.display='block';
-  if(g==='trivia') document.getElementById('trivia-game').style.display='block';
+  const val=document.getElementById('gameSelect').value;
+  document.querySelectorAll('.gameContent').forEach(g=>g.style.display='none');
+  document.getElementById(val+'-game').style.display='block';
 }
 
-// SSP
+// Rock-Paper-Scissors
 let sspWins=0, sspLoss=0;
-function playSSP(playerChoice){
-  const choices=['Rock','Paper','Scissors'];
-  const botChoice=choices[Math.floor(Math.random()*choices.length)];
-  let result='';
-  if(playerChoice===botChoice) result=`${playerChoice} vs ${botChoice} ... Tie!`;
-  else if((playerChoice==='Rock' && botChoice==='Scissors')||(playerChoice==='Scissors'&&botChoice==='Paper')||(playerChoice==='Paper'&&botChoice==='Rock')){
-    result=`${playerChoice} vs ${botChoice} ... YOU WIN!`;
-    sspWins++; document.getElementById('sspWins').innerText=sspWins;
-  } else {
-    result=`${playerChoice} vs ${botChoice} ... You lost!`;
-    sspLoss++; document.getElementById('sspLoss').innerText=sspLoss;
-  }
-  document.getElementById('ssp-result').innerText=result;
+function playSSP(choice){
+  const bot=['Rock','Paper','Scissors'];
+  const botChoice=bot[Math.floor(Math.random()*3)];
+  let res='';
+  if(choice===botChoice) res="Tie!";
+  else if((choice==='Rock'&&botChoice==='Scissors')||(choice==='Scissors'&&botChoice==='Paper')||(choice==='Paper'&&botChoice==='Rock')){
+    res="You Win!"; sspWins++;
+  } else { res="You Lost!"; sspLoss++; }
+  document.getElementById('ssp-result').innerText=choice+" vs "+botChoice+" ... "+res;
+  document.getElementById('sspWins').innerText=sspWins;
+  document.getElementById('sspLoss').innerText=sspLoss;
 }
 
 // Snake
 const canvas=document.getElementById("snakeCanvas");
 const ctx=canvas.getContext("2d");
 const box=15;
-let snake=[{x:5*box,y:5*box}],direction=null;
-let food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};
-let score=0, snakeWins=0, snakeLoss=0;
-document.addEventListener("keydown",dir);
-function dir(e){
-  if(e.keyCode==37 && direction!="RIGHT") direction="LEFT";
-  else if(e.keyCode==38 && direction!="DOWN") direction="UP";
-  else if(e.keyCode==39 && direction!="LEFT") direction="RIGHT";
-  else if(e.keyCode==40 && direction!="UP") direction="DOWN";
-  else if(e.key.toLowerCase()=="r") resetSnake();
+let snake=[{x:5*box,y:5*box}],direction,food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box},score=0,snakeWins=0,snakeLoss=0;
+document.addEventListener("keydown",snakeDir);
+function snakeDir(e){
+  const key=e.key.toLowerCase();
+  if((e.keyCode==37||key=="a") && direction!="RIGHT") direction="LEFT";
+  else if((e.keyCode==38||key=="w") && direction!="DOWN") direction="UP";
+  else if((e.keyCode==39||key=="d") && direction!="LEFT") direction="RIGHT";
+  else if((e.keyCode==40||key=="s") && direction!="UP") direction="DOWN";
+  else if(key=="r") resetSnake();
 }
 function resetSnake(){
-  snake=[{x:5*box,y:5*box}]; direction=null; score=0;
+  snake=[{x:5*box,y:5*box}];
+  direction=null;
+  food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};
+  score=0;
   document.getElementById("snakeScore").innerText=score;
 }
 function draw(){
   ctx.fillStyle="#000"; ctx.fillRect(0,0,300,300);
-  for(let i=0;i<snake.length;i++){
-    ctx.fillStyle=(i==0)?"lime":"white";
-    ctx.fillRect(snake[i].x,snake[i].y,box,box);
-  }
+  snake.forEach((s,i)=>{ctx.fillStyle=i===0?"lime":"white";ctx.fillRect(s.x,s.y,box,box);});
   ctx.fillStyle="red"; ctx.fillRect(food.x,food.y,box,box);
-  let snakeX=snake[0].x,snakeY=snake[0].y;
-  if(direction=="LEFT") snakeX-=box;
-  if(direction=="UP") snakeY-=box;
-  if(direction=="RIGHT") snakeX+=box;
-  if(direction=="DOWN") snakeY+=box;
-  if(snakeX==food.x && snakeY==food.y){
-    score++; food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};
-  } else snake.pop();
-  let newHead={x:snakeX,y:snakeY};
-  if(snakeX<0||snakeY<0||snakeX>=300||snakeY>=300||collision(newHead,snake)){
-    snakeLoss++; document.getElementById("snakeLoss").innerText=snakeLoss;
-    resetSnake();
-  }
+  let headX=snake[0].x, headY=snake[0].y;
+  if(direction=="LEFT") headX-=box; else if(direction=="UP") headY-=box;
+  else if(direction=="RIGHT") headX+=box; else if(direction=="DOWN") headY+=box;
+  if(headX===food.x && headY===food.y){ score++; food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};}
+  else snake.pop();
+  let newHead={x:headX,y:headY};
+  if(headX<0||headY<0||headX>=300||headY>=300||collision(newHead,snake)){ snakeLoss++; resetSnake(); }
   snake.unshift(newHead);
   document.getElementById("snakeScore").innerText=score;
+  document.getElementById("snakeWins").innerText=snakeWins;
+  document.getElementById("snakeLoss").innerText=snakeLoss;
 }
-function collision(head,array){for(let i=0;i<array.length;i++) if(head.x==array[i].x && head.y==array[i].y) return true; return false;}
+function collision(h,a){return a.some(s=>s.x===h.x&&s.y===h.y);}
 setInterval(draw,100);
 
-// Reaction Time
-let reactionWins=0,reactionLoss=0,reactionActive=false;
+// Reaction Time Game
+let startTime,reactionTimeout,reactionRunning=false,reactionWins=0,reactionLoss=0;
 function startReactionGame(){
-  if(reactionActive) return;
-  reactionActive=true; document.getElementById("reactionResult").innerText="Wait for green...";
-  setTimeout(()=>{
+  if(reactionRunning) return; // spam protection
+  reactionRunning=true;
+  document.getElementById("reactionResult").innerText="Wait for green...";
+  reactionTimeout=setTimeout(()=>{
     document.getElementById("reactionResult").innerText="CLICK NOW!";
-    const start=Date.now();
-    const clickHandler=()=>{
-      let reaction=Date.now()-start;
-      if(reaction<300){reactionWins++;document.getElementById("reactionWins").innerText=reactionWins;document.getElementById("reactionResult").innerText=`Fast! ${reaction}ms`;}
-      else{reactionLoss++;document.getElementById("reactionLoss").innerText=reactionLoss;document.getElementById("reactionResult").innerText=`Slow! ${reaction}ms`;}
-      reactionActive=false;
-      document.body.removeEventListener("click",clickHandler);
-    };
-    document.body.addEventListener("click",clickHandler);
+    startTime=Date.now();
+    document.body.onclick=reactionClick;
   },Math.random()*3000+2000);
+}
+function reactionClick(){
+  let reaction=Date.now()-startTime;
+  if(reaction>=0){ document.getElementById("reactionResult").innerText="Your reaction: "+reaction+"ms"; reactionWins++; }
+  else { reactionLoss++; }
+  reactionRunning=false;
+  document.getElementById("reactionWins").innerText=reactionWins;
+  document.getElementById("reactionLoss").innerText=reactionLoss;
+  document.body.onclick=null;
 }
 
 // Trivia
@@ -308,34 +284,44 @@ const triviaQuestions=[
   {q:"What do you need to craft a crafting table?",a:"4 planks"},
   {q:"What mob explodes?",a:"creeper"},
   {q:"What do Endermen drop?",a:"ender pearl"},
-  {q:"How do you tame a wolf?",a:"bone"},
-  {q:"What tool breaks stone fastest?",a:"pickaxe"},
-  {q:"What food restores hunger?",a:"bread"},
-  {q:"Which mob shoots fireballs?",a:"blaze"},
-  {q:"What dimension has the Ender Dragon?",a:"end"},
-  {q:"What is the main material for torches?",a:"stick"},
-  {q:"Which block is used to make obsidian?",a:"lava and water"},
-  {q:"What can you use to find diamonds?",a:"iron pickaxe"},
-  {q:"What is the green slime mob called?",a:"slime"},
-  {q:"Which mob drops leather?",a:"cow"},
-  {q:"Which block do you need to make TNT?",a:"gunpowder and sand"},
-  {q:"What mob spawns in the Nether?",a:"zombie pigman"},
-  {q:"What potion makes you invisible?",a:"invisibility"},
-  {q:"Which block is red and used in redstone?",a:"redstone"},
-  {q:"What can you eat to regain health?",a:"apple"},
-  {q:"What mob explodes near players?",a:"creeper"},
-  {q:"What tool is used to shear sheep?",a:"shears"}
+  {q:"Which block is needed to make obsidian?",a:"water+lava"},
+  {q:"Which tool is needed to mine stone?",a:"pickaxe"},
+  {q:"Which animal drops wool?",a:"sheep"},
+  {q:"Which mob shoots arrows?",a:"skeleton"},
+  {q:"Which dimension is the Nether?",a:"nether"},
+  {q:"Which food restores hunger?",a:"bread"},
+  {q:"Which block can be used for redstone?",a:"redstone"},
+  {q:"Which creature spawns in the dark and teleports?",a:"enderman"},
+  {q:"Which item can be used to make a furnace?",a:"cobblestone"},
+  {q:"Which item do you need to make a bed?",a:"wool"},
+  {q:"Which plant drops seeds?",a:"wheat"},
+  {q:"Which hostile mob sets you on fire?",a:"blaze"},
+  {q:"Which boss is found in the End?",a:"ender dragon"},
+  {q:"Which tool can break obsidian?",a:"diamond pickaxe"},
+  {q:"Which block drops apples?",a:"oak leaves"},
+  {q:"Which item is needed to make TNT?",a:"gunpowder+sand"},
 ];
-let triviaWins=0,triviaLoss=0,currentTrivia=0;
-function startTrivia(){currentTrivia=0;document.getElementById("triviaQuestion").innerText=triviaQuestions[currentTrivia].q;}
+let currentTrivia=0,triviaWins=0,triviaLoss=0;
+function startTrivia(){ currentTrivia=0; document.getElementById("triviaQuestion").innerText=triviaQuestions[0].q; }
 function submitTrivia(){
   let answer=document.getElementById("triviaAnswer").value.toLowerCase().trim();
-  if(answer===triviaQuestions[currentTrivia].a){triviaWins++;document.getElementById("triviaWins").innerText=triviaWins;document.getElementById("triviaResult").innerText="Correct!";}
-  else{triviaLoss++;document.getElementById("triviaLoss").innerText=triviaLoss;document.getElementById("triviaResult").innerText="Wrong!";}
+  if(answer===triviaQuestions[currentTrivia].a){ document.getElementById("triviaResult").innerText="Correct!"; triviaWins++; }
+  else { document.getElementById("triviaResult").innerText="Wrong!"; triviaLoss++; }
   currentTrivia++;
   if(currentTrivia<triviaQuestions.length) document.getElementById("triviaQuestion").innerText=triviaQuestions[currentTrivia].q;
   else document.getElementById("triviaQuestion").innerText="End of trivia!";
+  document.getElementById("triviaWins").innerText=triviaWins;
+  document.getElementById("triviaLoss").innerText=triviaLoss;
 }
 
 // Konami Code
-const konami=[38,38,40,40,37,39,37,39,66,
+const konami=[38,38,40,40,37,39,37,39,66,65]; let konamiIndex=0;
+document.addEventListener("keydown",(e)=>{
+  if(e.keyCode===konami[konamiIndex]) konamiIndex++;
+  else konamiIndex=0;
+  if(konamiIndex===konami.length){ window.location.href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"; konamiIndex=0; }
+});
+</script>
+
+</body>
+</html>
