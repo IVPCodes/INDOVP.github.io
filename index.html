@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jen.bi</title>
+  <title>INDOVP</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -66,36 +66,37 @@
 
   <!-- 🔳 Tabs -->
   <div class="tab-container">
-    <button class="tab-button active" onclick="openTab('ueber')">🧍 Über mich</button>
+    <button class="tab-button active" onclick="openTab('about')">🧍 About Me</button>
     <button class="tab-button" onclick="openTab('games')">🎮 Mini-Games</button>
     <button class="tab-button" onclick="openTab('links')">🔗 Links</button>
   </div>
 
-  <!-- 📦 Inhalte -->
+  <!-- 📦 Content -->
   <div class="content">
 
-    <!-- Über mich -->
-    <div id="ueber" class="tab-content active">
-      <h2>Über mich</h2>
-      <img src="https://https://yt3.googleusercontent.com/pO-y1fftvWAFkn7f7VFQlRoq0YKaVzN2mk5s15TaBiZUzArfRVOYBdL-kf_MI-6JMwtIteikoko=s160-c-k-c0x00ffffff-no-rj=s160-c-k-c0x00ffffff-no-rj" alt="Jenbi">
-      <p>Hallo! Ich bin INDOVP – willkommen auf meiner Website! Hier findet ihr das meiste über mich, also Daten, Links, interresante Fakten, Events, Mini-Games und vieles mehr! 😎</p>
-  	<br/>
-  	Ich komme aus dem guten Deutschland/NRW und mache, wenn ich überhaupt welche mache, Videos über Roblox, Brawl stars und ein bischen Minecraft.
-  	<br/>
-  	Wieso ließt du das?
+    <!-- About Me -->
+    <div id="about" class="tab-content active">
+      <h2>About Me</h2>
+      <img src="https://yt3.googleusercontent.com/pO-y1fftvWAFkn7f7VFQlRoq0YKaVzN2mk5s15TaBiZUzArfRVOYBdL-kf_MI-6JMwtIteikoko=s160-c-k-c0x00ffffff-no-rj" alt="INDOVP">
+      <p>Hey! I'm <strong>INDOVP</strong> 👋 Welcome to my official website!</p>
+      <p>Here you'll find everything about me – who I am, what I do, links to my platforms, and a few small games to have some fun. 😎</p>
+      <br/>
+      I'm from Germany (NRW) and I create videos about <strong>Roblox</strong>, <strong>Brawl Stars</strong>, and sometimes <strong>Minecraft</strong>. I always try to be creative and entertaining.
+      <br/><br/>
+      If you read this far – you're awesome. 😄
     </div>
 
     <!-- Mini-Games -->
     <div id="games" class="tab-content">
       <h2>Mini-Games</h2>
 
-      <!-- Spielbereich -->
+      <!-- Game Section -->
       <div id="ssp-game">
-        <h3>🎮 Schere-Stein-Papier</h3>
-        <p>Wähle eine Option:</p>
-        <button onclick="playSSP('Schere')">✌️ Schere</button>
-        <button onclick="playSSP('Stein')">🪨 Stein</button>
-        <button onclick="playSSP('Papier')">📄 Papier</button>
+        <h3>🎮 Rock-Paper-Scissors</h3>
+        <p>Choose an option:</p>
+        <button onclick="playSSP('Scissors')">✌️ Scissors</button>
+        <button onclick="playSSP('Rock')">🪨 Rock</button>
+        <button onclick="playSSP('Paper')">📄 Paper</button>
         <p id="ssp-result"></p>
       </div>
     </div>
@@ -103,16 +104,16 @@
     <!-- Links -->
     <div id="links" class="tab-content">
       <h2>Links</h2>
-      <p>Hier ist mein YouTube-Kanal:</p>
-      <a href="https://www.youtube.com/@INDOVP" target="_blank">➡️ Jenbi auf YouTube</a>
+      <p>My YouTube channel:</p>
+      <a href="https://www.youtube.com/@INDOVP" target="_blank">➡️ INDOVP on YouTube</a>
       <br/><br/>
-      <p>Beliebtestes Video:</p>
+      <p>My most popular video:</p>
       <iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
     </div>
 
   </div>
 
-  <!-- ⚙️ Tab-Wechsler + Game Script -->
+  <!-- ⚙️ Tab Switcher + Game Script -->
   <script>
     function openTab(tabId) {
       const contents = document.querySelectorAll('.tab-content');
@@ -126,20 +127,20 @@
     }
 
     function playSSP(playerChoice) {
-      const choices = ['Schere', 'Stein', 'Papier'];
+      const choices = ['Scissors', 'Rock', 'Paper'];
       const botChoice = choices[Math.floor(Math.random() * 3)];
       let result = '';
 
       if (playerChoice === botChoice) {
-        result = `${playerChoice} vs ${botChoice} ... Unentschieden!`;
+        result = `${playerChoice} vs ${botChoice} ... It's a draw!`;
       } else if (
-        (playerChoice === 'Schere' && botChoice === 'Papier') ||
-        (playerChoice === 'Stein' && botChoice === 'Schere') ||
-        (playerChoice === 'Papier' && botChoice === 'Stein')
+        (playerChoice === 'Scissors' && botChoice === 'Paper') ||
+        (playerChoice === 'Rock' && botChoice === 'Scissors') ||
+        (playerChoice === 'Paper' && botChoice === 'Rock')
       ) {
-        result = `${playerChoice} vs ${botChoice} ... DU HAST GEWONNEN!`;
+        result = `${playerChoice} vs ${botChoice} ... YOU WIN! 🎉`;
       } else {
-        result = `${playerChoice} vs ${botChoice} ... du hast verloren!`;
+        result = `${playerChoice} vs ${botChoice} ... You lost. 😢`;
       }
 
       document.getElementById('ssp-result').innerText = result;
