@@ -28,11 +28,15 @@
     .tab-container {
       display: flex;
       justify-content: center;
-      background-color: var(--primary-color);
+      background-color: var(--bg-light);
       padding: 15px 0;
       gap: 20px;
       position: relative;
       z-index: 2;
+      transition: background-color 0.4s;
+    }
+    body.dark .tab-container {
+      background-color: var(--bg-dark);
     }
 
     .tab-button {
@@ -42,7 +46,7 @@
       font-size: 16px;
       border-radius: 10px 10px 0 0;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background 0.3s, box-shadow 0.3s;
       color: var(--text-light);
     }
 
@@ -51,12 +55,14 @@
       background-color: #e0e0e0;
     }
     body.dark .tab-button {
-      background-color: #333;
+      background-color: var(--primary-color);
       color: var(--text-dark);
+      box-shadow: 0 0 10px rgba(42,108,244,0.8);
     }
     body.dark .tab-button:hover,
     body.dark .tab-button.active {
-      background-color: #555;
+      background-color: var(--primary-hover);
+      box-shadow: 0 0 15px rgba(29,75,209,1);
     }
 
     .content {
@@ -92,7 +98,6 @@
       padding: 30px;
       box-sizing: border-box;
     }
-
     .tab-content.active {
       opacity: 1;
       max-height: 2000px;
@@ -142,13 +147,9 @@
       padding: 5px 0;
       font-weight: 600;
     }
-
     canvas {
-      border: 1px solid #555;
-      background: #fff;
-    }
-    body.dark canvas {
-      background: #111;
+      border: 2px solid #444;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -175,45 +176,40 @@
     <div id="games" class="tab-content">
       <h2>Mini-Games</h2>
       <div id="ssp-game">
-        <h3>🪨✂️📄 Rock-Paper-Scissors</h3>
+        <h3>🎮 Rock-Paper-Scissors</h3>
         <button onclick="playSSP('Rock')">🪨 Rock</button>
         <button onclick="playSSP('Scissors')">✌️ Scissors</button>
         <button onclick="playSSP('Paper')">📄 Paper</button>
         <p id="ssp-result"></p>
       </div>
-
-      <div id="snake-game">
-        <h3>🐍 Snake</h3>
-        <canvas id="snakeCanvas" width="300" height="300"></canvas>
-        <p id="snake-result"></p>
-      </div>
-
-      <div id="reaction-game">
-        <h3>⚡ Reaction Time Test</h3>
-        <button id="startReaction">Start</button>
-        <p id="reaction-result"></p>
-      </div>
-
-      <div id="trivia-game">
-        <h3>❓ Minecraft Trivia</h3>
-        <p id="trivia-question">Press start to play!</p>
-        <button onclick="startTrivia()">Start Trivia</button>
-        <div id="trivia-options"></div>
-        <p id="trivia-result"></p>
-      </div>
+      <hr/>
+      <h3>🐍 Snake</h3>
+      <canvas id="snakeCanvas" width="300" height="300"></canvas>
+      <p id="snakeScore">Score: 0</p>
+      <hr/>
+      <h3>⚡ Reaction Time Game</h3>
+      <button onclick="startReactionGame()">Start</button>
+      <p id="reactionResult"></p>
+      <hr/>
+      <h3>❓ Minecraft Trivia</h3>
+      <button onclick="startTrivia()">Start Trivia</button>
+      <p id="triviaQuestion"></p>
+      <input type="text" id="triviaAnswer" placeholder="Your answer">
+      <button onclick="submitTrivia()">Submit</button>
+      <p id="triviaResult"></p>
     </div>
 
     <div id="links" class="tab-content">
       <h2>Links</h2>
       <p>My YouTube channel:</p>
       <a href="https://www.youtube.com/@INDOVP" target="_blank">➡️ INDOVP on YouTube</a><br/><br/>
-
+      
       <p>My Twitch channel:</p>
       <a href="https://www.twitch.tv/jo31erde" target="_blank">➡️ twitch.tv/jo31erde</a><br/><br/>
-
+      
       <p>My Twitter:</p>
       <a href="https://twitter.com/INDOVP" target="_blank">➡️ @INDOVP</a><br/><br/>
-
+      
       <p>Most popular video:</p>
       <iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
     </div>
@@ -271,7 +267,6 @@
     function openTab(tabId) {
       const contents = document.querySelectorAll('.tab-content');
       const buttons = document.querySelectorAll('.tab-button');
-
       buttons.forEach(btn => btn.classList.remove('active'));
       contents.forEach(content => {
         if(content.id === tabId){
@@ -304,117 +299,107 @@
     // Snake
     const canvas = document.getElementById("snakeCanvas");
     const ctx = canvas.getContext("2d");
-    let box = 10;
-    let snake = [{x: 150, y: 150}];
+    const box = 15;
+    let snake = [{x: 5 * box, y: 5 * box}];
     let direction;
-    let food = {x: Math.floor(Math.random()*30)*10, y: Math.floor(Math.random()*30)*10};
-
-    document.addEventListener("keydown", e => {
-      if(e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-      else if(e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-      else if(e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-      else if(e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
-    });
-
-    function drawSnake(){
-      ctx.clearRect(0,0,300,300);
-      snake.forEach((s,i)=>{
-        ctx.fillStyle = i===0 ? "green" : "lime";
-        ctx.fillRect(s.x, s.y, box, box);
-      });
+    let food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
+    let score = 0;
+    document.addEventListener("keydown", dir);
+    function dir(event) {
+      if(event.keyCode == 37 && direction != "RIGHT") direction = "LEFT";
+      else if(event.keyCode == 38 && direction != "DOWN") direction = "UP";
+      else if(event.keyCode == 39 && direction != "LEFT") direction = "RIGHT";
+      else if(event.keyCode == 40 && direction != "UP") direction = "DOWN";
+    }
+    function draw() {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0,0,300,300);
+      for(let i=0; i<snake.length; i++){
+        ctx.fillStyle = (i==0)? "lime":"white";
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+      }
       ctx.fillStyle = "red";
       ctx.fillRect(food.x, food.y, box, box);
-
-      let head = {...snake[0]};
-      if(direction === "UP") head.y -= box;
-      if(direction === "DOWN") head.y += box;
-      if(direction === "LEFT") head.x -= box;
-      if(direction === "RIGHT") head.x += box;
-
-      if(head.x === food.x && head.y === food.y){
-        food = {x: Math.floor(Math.random()*30)*10, y: Math.floor(Math.random()*30)*10};
+      let snakeX = snake[0].x;
+      let snakeY = snake[0].y;
+      if(direction == "LEFT") snakeX -= box;
+      if(direction == "UP") snakeY -= box;
+      if(direction == "RIGHT") snakeX += box;
+      if(direction == "DOWN") snakeY += box;
+      if(snakeX == food.x && snakeY == food.y){
+        score++;
+        food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
       } else {
         snake.pop();
       }
-
-      if(head.x<0 || head.y<0 || head.x>=300 || head.y>=300 || snake.some(s=>s.x===head.x && s.y===head.y)){
+      let newHead = {x: snakeX, y: snakeY};
+      if(snakeX < 0 || snakeY < 0 || snakeX >= 300 || snakeY >= 300 || collision(newHead,snake)){
         clearInterval(game);
-        document.getElementById('snake-result').innerText = "Game Over!";
       }
-      snake.unshift(head);
+      snake.unshift(newHead);
+      document.getElementById("snakeScore").innerText = "Score: " + score;
     }
-    let game = setInterval(drawSnake, 100);
-
-    // Reaction Game
-    const startBtn = document.getElementById('startReaction');
-    const reactionResult = document.getElementById('reaction-result');
-    let startTime;
-    startBtn.addEventListener('click', ()=>{
-      reactionResult.innerText = "Wait for green...";
-      startBtn.disabled = true;
-      setTimeout(()=>{
-        document.body.style.background = "green";
-        startTime = Date.now();
-      }, Math.random()*3000+2000);
-    });
-    document.body.addEventListener('click', ()=>{
-      if(startTime){
-        let time = Date.now()-startTime;
-        reactionResult.innerText = `Your reaction: ${time} ms`;
-        document.body.style.background = "";
-        startBtn.disabled = false;
-        startTime = null;
+    function collision(head,array){
+      for(let i=0; i<array.length; i++){
+        if(head.x == array[i].x && head.y == array[i].y){ return true; }
       }
-    });
+      return false;
+    }
+    let game = setInterval(draw,100);
+
+    // Reaction Time Game
+    let startTime, timeout;
+    function startReactionGame(){
+      document.getElementById("reactionResult").innerText = "Wait for green...";
+      timeout = setTimeout(()=>{
+        document.getElementById("reactionResult").innerText = "CLICK NOW!";
+        startTime = Date.now();
+        document.body.onclick = ()=>{
+          let reaction = Date.now()-startTime;
+          document.getElementById("reactionResult").innerText = "Your reaction: "+reaction+"ms";
+          document.body.onclick = null;
+        }
+      },Math.random()*3000+2000);
+    }
 
     // Trivia
     const triviaQuestions = [
-      {q:"What is needed to craft a crafting table?", options:["4 planks","4 sticks","4 dirt"], answer:0},
-      {q:"Which mob explodes?", options:["Zombie","Creeper","Skeleton"], answer:1},
-      {q:"What tool is used to mine diamonds?", options:["Stone pickaxe","Iron pickaxe","Wooden pickaxe"], answer:1}
+      {q:"What do you need to craft a crafting table?",a:"4 planks"},
+      {q:"What mob explodes?",a:"creeper"},
+      {q:"What do Endermen drop?",a:"ender pearl"},
     ];
-    let triviaIndex=0;
+    let currentTrivia = 0;
     function startTrivia(){
-      triviaIndex=0;
-      showTrivia();
+      currentTrivia=0;
+      document.getElementById("triviaQuestion").innerText = triviaQuestions[currentTrivia].q;
     }
-    function showTrivia(){
-      if(triviaIndex>=triviaQuestions.length){
-        document.getElementById('trivia-result').innerText = "Trivia Finished!";
-        return;
+    function submitTrivia(){
+      let answer = document.getElementById("triviaAnswer").value.toLowerCase().trim();
+      if(answer === triviaQuestions[currentTrivia].a){
+        document.getElementById("triviaResult").innerText = "Correct!";
+      } else {
+        document.getElementById("triviaResult").innerText = "Wrong!";
       }
-      const t=triviaQuestions[triviaIndex];
-      document.getElementById('trivia-question').innerText = t.q;
-      const optionsDiv=document.getElementById('trivia-options');
-      optionsDiv.innerHTML="";
-      t.options.forEach((opt,i)=>{
-        const btn=document.createElement('button');
-        btn.innerText=opt;
-        btn.onclick=()=>{
-          if(i===t.answer){
-            document.getElementById('trivia-result').innerText = "Correct!";
-          } else {
-            document.getElementById('trivia-result').innerText = "Wrong!";
-          }
-          triviaIndex++;
-          showTrivia();
-        };
-        optionsDiv.appendChild(btn);
-      });
+      currentTrivia++;
+      if(currentTrivia<triviaQuestions.length){
+        document.getElementById("triviaQuestion").innerText = triviaQuestions[currentTrivia].q;
+      } else {
+        document.getElementById("triviaQuestion").innerText = "End of trivia!";
+      }
     }
 
     // Konami Code
-    const konami=["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
-    let position=0;
-    document.addEventListener('keydown',e=>{
-      if(e.key===konami[position]){
-        position++;
-        if(position===konami.length){
-          window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ","_blank");
-          position=0;
+    const konami = [38,38,40,40,37,39,37,39,66,65];
+    let konamiIndex = 0;
+    document.addEventListener("keydown",(e)=>{
+      if(e.keyCode === konami[konamiIndex]){
+        konamiIndex++;
+        if(konamiIndex === konami.length){
+          window.location.href="https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+          konamiIndex=0;
         }
       } else {
-        position=0;
+        konamiIndex=0;
       }
     });
   </script>
