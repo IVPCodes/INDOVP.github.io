@@ -96,7 +96,7 @@
 
     .tab-content.active {
       opacity: 1;
-      max-height: 2000px; /* genug für Inhalt */
+      max-height: 2000px; /* enough for content */
       pointer-events: auto;
       position: relative;
     }
@@ -161,7 +161,7 @@
     <!-- About Me -->
     <div id="about" class="tab-content active">
       <h2>About Me</h2>
-      <img src="https://yt3.googleusercontent.com/pO-y1fftvWAFkn7f7VFQlRoq0YKaVzN2mk5s15TaBiZUzArfRVOYBdL-kf_MI-6JMwtIteikoko=s160-c-k-c0x00ffffff-no-rj=s160-c-k-c0x00ffffff-no-rj" alt="INDOVP">
+      <img src="profile.png" alt="INDOVP">
       <p>Hello! I'm INDOVP – welcome to my website! Here you'll find info about me, data, links, interesting facts, events, mini-games and much more! 😎</p>
       <p>I come from good old Germany/NRW and if I make videos at all, it's mostly about Roblox, Brawl Stars and a bit of Minecraft.</p>
       <p>Why are you reading this?</p>
@@ -227,12 +227,25 @@
     const darkModeToggle = document.getElementById('darkModeToggle');
     const body = document.body;
 
-    darkModeToggle.addEventListener('click', () => {
-      body.classList.toggle('dark');
-      if(body.classList.contains('dark')){
+    // Prüfe beim Laden, ob darkMode in localStorage gespeichert ist
+    window.addEventListener('load', () => {
+      if(localStorage.getItem('darkMode') === 'enabled'){
+        body.classList.add('dark');
         darkModeToggle.textContent = 'Switch to Light Mode';
       } else {
         darkModeToggle.textContent = 'Switch to Dark Mode';
+      }
+    });
+
+    darkModeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark');
+
+      if(body.classList.contains('dark')){
+        darkModeToggle.textContent = 'Switch to Light Mode';
+        localStorage.setItem('darkMode', 'enabled');
+      } else {
+        darkModeToggle.textContent = 'Switch to Dark Mode';
+        localStorage.setItem('darkMode', 'disabled');
       }
     });
 
