@@ -9,11 +9,10 @@
   body{background:var(--bg);color:var(--color,#e6eef6);font-family:Inter,Arial,Helvetica,sans-serif;padding:18px}
   h1{text-align:center;margin:6px 0 18px}
   .wrap{max-width:980px;margin:0 auto}
-  .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-  input[type="text"], input[type="number"], select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:#0b1220;color:var(--color);min-width:120px}
-  button{background:var(--accent);color:white;border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
-  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
-  .card{background:var(--card);padding:12px;border-radius:10px;margin:10px 0;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
+  input[type="text"], input[type="number"]{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#0b1220;color:var(--color)}
+  button{background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.2)}
+  .card{background:var(--card);padding:14px;border-radius:10px;margin:12px 0;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
   .level-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
   .difficulty{padding:5px 8px;border-radius:6px;font-weight:700;color:#081223}
   .Easy{background:#34d399}
@@ -21,37 +20,32 @@
   .Hard{background:#fb923c}
   .Insane{background:#a78bfa}
   .Extreme{background:#f43f5e}
-  .records{margin-top:10px}
   ul{list-style:none;padding:0;margin:0}
-  li.record{display:flex;justify-content:space-between;padding:8px;border-radius:6px;background:rgba(255,255,255,0.02);margin-bottom:6px}
-  .pending-bubble{background:#f59e0b;color:#081223;padding:4px 8px;border-radius:999px;font-weight:700}
+  li.record{display:flex;justify-content:space-between;padding:8px;border-radius:6px;background:rgba(255,255,255,0.05);margin-bottom:6px}
+  .pending-bubble{background:#f59e0b;color:#081223;padding:6px 10px;border-radius:999px;font-weight:700}
   .owner-panel{margin-top:12px;padding:12px;border-radius:10px;background:rgba(42,108,244,0.06)}
   .muted{opacity:0.7;font-size:13px}
   .smallbtn{padding:6px 8px;border-radius:6px;border:none;cursor:pointer}
   .approve{background:var(--ok);color:#021205}
   .reject{background:var(--bad);color:white}
-  .flex{display:flex;gap:8px;align-items:center}
-  .right{margin-left:auto}
-  .hint{font-size:13px;opacity:0.8}
+  .owner-login-box{display:flex;justify-content:center;gap:10px;margin:20px 0}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>INDOVP — Demon List mit Owner-Modus</h1>
+  <h1>INDOVP — Demon List</h1>
 
+  <!-- Owner Login Bereich -->
   <div class="card">
-    <div class="controls">
-      <div style="display:flex;gap:8px;align-items:center">
-        <label class="muted">Owner-Code eingeben:</label>
-        <input id="ownerCodeInput" type="text" placeholder="Code eingeben (z.B. 41342)">
-        <button id="ownerLoginBtn">Login</button>
-        <button id="ownerLogoutBtn" class="ghost" style="display:none">Logout</button>
-      </div>
-      <div class="right">
-        <span id="ownerBadge" style="display:none" class="pending-bubble">Owner-Mode ON</span>
-      </div>
+    <h2 style="text-align:center;margin-bottom:12px">🔑 Owner-Login</h2>
+    <div class="owner-login-box">
+      <input id="ownerCodeInput" type="text" placeholder="Owner-Code (z.B. 41342)" style="flex:1;max-width:300px;text-align:center;font-size:16px">
+      <button id="ownerLoginBtn">Login</button>
+      <button id="ownerLogoutBtn" class="ghost" style="display:none">Logout</button>
     </div>
-    <div class="muted">Gib <strong>41342</strong> ein, um Owner zu werden. Owner kann Pending-Runs prüfen & freigeben.</div>
+    <div style="text-align:center;margin-top:8px">
+      <span id="ownerBadge" style="display:none" class="pending-bubble">Owner-Mode ON</span>
+    </div>
   </div>
 
   <div id="levelsContainer"></div>
@@ -59,12 +53,12 @@
   <div id="ownerPanel" class="card owner-panel" style="display:none">
     <h3>Owner — Pending-Fach</h3>
     <div id="pendingList" style="min-height:40px"></div>
-    <div class="hint">Pending-Runs sind noch nicht öffentlich — approve = landet unter dem Level, reject = weg.</div>
+    <div class="muted">Hier siehst du alle eingereichten Runs. Approve = öffentlich, Reject = gelöscht.</div>
   </div>
 </div>
 
 <script>
-/* ----- Konfiguration: Levels (hier deine eigenen Level eintragen) ----- */
+/* ----- Levels eintragen ----- */
 const levels = [
   { id: 101, name: "Bloodrush", creator: "CreatorA", difficulty: "Insane" },
   { id: 102, name: "Skyfall", creator: "CreatorB", difficulty: "Hard" },
@@ -73,217 +67,132 @@ const levels = [
 ];
 const DIFF_ORDER = ["Easy","Medium","Hard","Insane","Extreme"];
 
-/* ----- Storage-Helper ----- */
-function getPublicRecords(levelId){
-  return JSON.parse(localStorage.getItem('records_'+levelId)) || [];
-}
+/* ----- Storage ----- */
+function getPublicRecords(levelId){ return JSON.parse(localStorage.getItem('records_'+levelId)) || []; }
 function savePublicRecord(levelId,record){
-  const arr = getPublicRecords(levelId);
-  arr.push(record);
+  const arr=getPublicRecords(levelId); arr.push(record);
   localStorage.setItem('records_'+levelId, JSON.stringify(arr));
 }
-function getPending(){
-  return JSON.parse(localStorage.getItem('pending_runs')) || [];
-}
-function savePending(arr){
-  localStorage.setItem('pending_runs', JSON.stringify(arr));
-}
+function getPending(){ return JSON.parse(localStorage.getItem('pending_runs')) || []; }
+function savePending(arr){ localStorage.setItem('pending_runs', JSON.stringify(arr)); }
 function addPending(levelId,record){
-  const p = getPending();
-  p.push({ levelId, record, ts: Date.now(), id: 'p'+Math.random().toString(36).slice(2,9) });
+  const p=getPending(); p.push({ levelId, record, ts:Date.now(), id:'p'+Math.random().toString(36).slice(2,9) });
   savePending(p);
 }
 
-/* ----- Owner-Auth (Session) ----- */
-const OWNER_CODE = "41342";
-function isOwner(){
-  return sessionStorage.getItem('isOwner') === '1';
-}
-function setOwner(flag){
-  if(flag) sessionStorage.setItem('isOwner','1');
-  else sessionStorage.removeItem('isOwner');
-  updateOwnerUI();
-}
+/* ----- Owner Auth ----- */
+const OWNER_CODE="41342";
+function isOwner(){ return sessionStorage.getItem('isOwner')==='1'; }
+function setOwner(flag){ flag?sessionStorage.setItem('isOwner','1'):sessionStorage.removeItem('isOwner'); updateOwnerUI(); }
 
-/* ----- UI Rendering ----- */
-const container = document.getElementById('levelsContainer');
+/* ----- Render Levels ----- */
+const container=document.getElementById('levelsContainer');
 function render(){
-  container.innerHTML = '';
-  // Sort levels by difficulty order
-  const sorted = [...levels].sort((a,b)=>DIFF_ORDER.indexOf(a.difficulty)-DIFF_ORDER.indexOf(b.difficulty));
-  sorted.forEach(lvl => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
+  container.innerHTML='';
+  const sorted=[...levels].sort((a,b)=>DIFF_ORDER.indexOf(a.difficulty)-DIFF_ORDER.indexOf(b.difficulty));
+  sorted.forEach(lvl=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=`
       <div class="level-head">
         <div>
           <div style="font-weight:800">${lvl.name}</div>
           <div class="muted">Creator: ${lvl.creator}</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end">
+        <div>
           <div class="difficulty ${lvl.difficulty}">${lvl.difficulty}</div>
           <div class="muted" style="margin-top:6px">ID: ${lvl.id}</div>
         </div>
       </div>
       <div class="records">
-        <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
-          <div class="muted">Rekord einreichen:</div>
-          <input type="text" id="name_${lvl.id}" placeholder="Dein Name">
-          <input type="number" id="progress_${lvl.id}" placeholder="Prozent" min="0" max="100">
-          <input type="number" id="attempts_${lvl.id}" placeholder="Versuche" min="1">
+        <div style="margin-top:10px">
+          <input type="text" id="name_${lvl.id}" placeholder="Name">
+          <input type="number" id="progress_${lvl.id}" placeholder="%" min="0" max="100">
+          <input type="number" id="attempts_${lvl.id}" placeholder="Attempts" min="1">
           <button onclick="handleSubmit(${lvl.id})">Einreichen</button>
         </div>
-        <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
-          <div class="muted">Öffentliche Rekorde</div>
-          <div class="muted" style="margin-left:auto">Anzahl: <span id="pubcount_${lvl.id}">0</span></div>
-        </div>
-        <ul id="records_${lvl.id}" style="margin-top:8px"></ul>
-      </div>
-    `;
+        <h4 style="margin-top:12px">Öffentliche Rekorde (<span id="pubcount_${lvl.id}">0</span>)</h4>
+        <ul id="records_${lvl.id}"></ul>
+      </div>`;
     container.appendChild(card);
     renderPublicRecords(lvl.id);
   });
-  updateOwnerUI();
 }
-
-/* ----- Render öffentliche records für ein level ----- */
 function renderPublicRecords(levelId){
-  const ul = document.getElementById('records_'+levelId);
-  if(!ul) return;
-  const recs = getPublicRecords(levelId);
-  ul.innerHTML = '';
+  const ul=document.getElementById('records_'+levelId);
+  const recs=getPublicRecords(levelId); ul.innerHTML='';
   recs.forEach(r=>{
-    const li = document.createElement('li');
-    li.className = 'record';
-    li.innerHTML = `<div>${escapeHTML(r.name)} — ${escapeHTML(r.progress)}% in ${escapeHTML(r.attempts)} tries</div>
-                    <div class="muted">${new Date(r.ts).toLocaleString()}</div>`;
+    const li=document.createElement('li');
+    li.className='record';
+    li.innerHTML=`<div>${escapeHTML(r.name)} — ${r.progress}% in ${r.attempts} tries</div><div class="muted">${new Date(r.ts).toLocaleString()}</div>`;
     ul.appendChild(li);
   });
-  const cnt = document.getElementById('pubcount_'+levelId);
-  if(cnt) cnt.textContent = recs.length;
+  document.getElementById('pubcount_'+levelId).textContent=recs.length;
 }
 
-/* ----- Submission Handler: landet in PENDING ----- */
+/* ----- Submit Handler (geht in Pending) ----- */
 function handleSubmit(levelId){
-  const name = document.getElementById('name_'+levelId).value?.trim();
-  const progress = document.getElementById('progress_'+levelId).value;
-  const attempts = document.getElementById('attempts_'+levelId).value;
-  if(!name || progress==='' || attempts===''){ alert('Bitte Name, Prozent und Versuche ausfüllen.'); return; }
-  const record = { name, progress: Number(progress), attempts: Number(attempts), ts: Date.now() };
-  // Save to pending (owner has to approve)
-  addPending(levelId, record);
-  // reset inputs
+  const name=document.getElementById('name_'+levelId).value.trim();
+  const progress=document.getElementById('progress_'+levelId).value;
+  const attempts=document.getElementById('attempts_'+levelId).value;
+  if(!name||progress===''||attempts===''){alert('Bitte alles ausfüllen.');return;}
+  addPending(levelId,{name,progress:Number(progress),attempts:Number(attempts),ts:Date.now()});
+  alert('Run eingereicht — wartet auf Owner-Approval.');
   document.getElementById('name_'+levelId).value='';
   document.getElementById('progress_'+levelId).value='';
   document.getElementById('attempts_'+levelId).value='';
-  alert('Run eingereicht — wird dem Owner zur Prüfung vorgelegt.');
   renderPendingList();
 }
 
-/* ----- Owner UI & Pending List ----- */
-const ownerPanel = document.getElementById('ownerPanel');
-const pendingListEl = document.getElementById('pendingList');
-
+/* ----- Pending / Owner Panel ----- */
 function renderPendingList(){
-  const pending = getPending();
-  if(!isOwner()){
-    pendingListEl.innerHTML = '<div class="muted">Du musst Owner sein, um Pending-Runs zu sehen.</div>';
-    return;
-  }
-  if(pending.length===0){ pendingListEl.innerHTML = '<div class="muted">Keine Pending-Runs.</div>'; return; }
-  pendingListEl.innerHTML = '';
+  const list=document.getElementById('pendingList'); const pending=getPending();
+  if(!isOwner()){ list.innerHTML='<div class="muted">Nicht im Owner-Mode.</div>'; return; }
+  if(pending.length===0){ list.innerHTML='<div class="muted">Keine Pending-Runs.</div>'; return; }
+  list.innerHTML='';
   pending.forEach(item=>{
-    const lvl = levels.find(x=>x.id===item.levelId) || {name:'Unknown', id:item.levelId};
-    const wrap = document.createElement('div');
-    wrap.style.display='flex';
-    wrap.style.gap='8px';
-    wrap.style.alignItems='center';
-    wrap.style.marginBottom='8px';
-    wrap.innerHTML = `
-      <div style="flex:1">
-        <div style="font-weight:700">${escapeHTML(lvl.name)} <span class="muted">(#${lvl.id})</span></div>
-        <div class="muted">${escapeHTML(item.record.name)} — ${escapeHTML(item.record.progress)}% in ${escapeHTML(item.record.attempts)} tries • ${new Date(item.record.ts).toLocaleString()}</div>
-      </div>
-    `;
-    const btns = document.createElement('div');
-    btns.style.display='flex'; btns.style.gap='6px';
-    const approve = document.createElement('button'); approve.textContent='Approve'; approve.className='smallbtn approve';
-    const reject = document.createElement('button'); reject.textContent='Reject'; reject.className='smallbtn reject';
-    approve.onclick = ()=>{ approvePending(item.id); };
-    reject.onclick = ()=>{ rejectPending(item.id); };
+    const lvl=levels.find(x=>x.id===item.levelId)||{name:'Unbekannt'};
+    const div=document.createElement('div');
+    div.className='record';
+    div.innerHTML=`<div>${escapeHTML(lvl.name)}: ${escapeHTML(item.record.name)} — ${item.record.progress}% in ${item.record.attempts} tries</div>`;
+    const btns=document.createElement('div');
+    const approve=document.createElement('button'); approve.textContent='Approve'; approve.className='smallbtn approve';
+    approve.onclick=()=>{ approvePending(item.id); };
+    const reject=document.createElement('button'); reject.textContent='Reject'; reject.className='smallbtn reject';
+    reject.onclick=()=>{ rejectPending(item.id); };
     btns.appendChild(approve); btns.appendChild(reject);
-    wrap.appendChild(btns);
-    pendingListEl.appendChild(wrap);
+    div.appendChild(btns);
+    list.appendChild(div);
   });
 }
-
-function approvePending(pendingId){
-  let pending = getPending();
-  const idx = pending.findIndex(p=>p.id===pendingId);
-  if(idx===-1){ alert('Pending nicht gefunden.'); renderPendingList(); return; }
-  const item = pending[idx];
-  // move to public
-  savePublicRecord(item.levelId, { ...item.record, ts: Date.now() });
-  // remove pending
-  pending.splice(idx,1);
-  savePending(pending);
-  renderPendingList();
-  renderPublicRecords(item.levelId);
+function approvePending(pid){
+  let p=getPending(); const idx=p.findIndex(x=>x.id===pid); if(idx===-1)return;
+  savePublicRecord(p[idx].levelId,{...p[idx].record,ts:Date.now()});
+  p.splice(idx,1); savePending(p); renderPendingList(); renderPublicRecords(p[idx]?.levelId||0);
+}
+function rejectPending(pid){
+  let p=getPending(); const idx=p.findIndex(x=>x.id===pid); if(idx===-1)return;
+  p.splice(idx,1); savePending(p); renderPendingList();
 }
 
-function rejectPending(pendingId){
-  let pending = getPending();
-  const idx = pending.findIndex(p=>p.id===pendingId);
-  if(idx===-1){ alert('Pending nicht gefunden.'); renderPendingList(); return; }
-  // remove only
-  pending.splice(idx,1);
-  savePending(pending);
-  renderPendingList();
-}
-
-/* ----- Owner Login UI ----- */
-const ownerLoginBtn = document.getElementById('ownerLoginBtn');
-const ownerLogoutBtn = document.getElementById('ownerLogoutBtn');
-const ownerCodeInput = document.getElementById('ownerCodeInput');
-const ownerBadge = document.getElementById('ownerBadge');
-
-ownerLoginBtn.addEventListener('click', ()=>{
-  const code = ownerCodeInput.value?.trim();
-  if(code === OWNER_CODE){
-    setOwner(true);
-    ownerCodeInput.value='';
-    alert('Owner-Login erfolgreich. Pending-Fach sichtbar.');
-  } else {
-    alert('Falscher Code.');
-  }
-});
-ownerLogoutBtn.addEventListener('click', ()=>{ setOwner(false); alert('Owner-Logout.'); });
-
+/* ----- Login UI ----- */
+const loginBtn=document.getElementById('ownerLoginBtn');
+const logoutBtn=document.getElementById('ownerLogoutBtn');
+const codeInput=document.getElementById('ownerCodeInput');
+const badge=document.getElementById('ownerBadge');
+loginBtn.onclick=()=>{ if(codeInput.value.trim()===OWNER_CODE){setOwner(true);alert('Owner-Login erfolgreich!');}else alert('Falscher Code.'); };
+logoutBtn.onclick=()=>{ setOwner(false); alert('Owner-Logout.'); };
 function updateOwnerUI(){
-  if(isOwner()){
-    ownerPanel.style.display = 'block';
-    ownerBadge.style.display = 'inline-block';
-    ownerLogoutBtn.style.display = 'inline-block';
-    ownerLoginBtn.style.display = 'none';
-    ownerCodeInput.style.display = 'none';
-  } else {
-    ownerPanel.style.display = 'none';
-    ownerBadge.style.display = 'none';
-    ownerLogoutBtn.style.display = 'none';
-    ownerLoginBtn.style.display = 'inline-block';
-    ownerCodeInput.style.display = 'inline-block';
-  }
+  if(isOwner()){ badge.style.display='inline-block'; logoutBtn.style.display='inline-block'; loginBtn.style.display='none'; codeInput.style.display='none'; document.getElementById('ownerPanel').style.display='block'; }
+  else{ badge.style.display='none'; logoutBtn.style.display='none'; loginBtn.style.display='inline-block'; codeInput.style.display='inline-block'; document.getElementById('ownerPanel').style.display='none'; }
   renderPendingList();
 }
 
-/* ----- helpers ----- */
-function escapeHTML(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+/* ----- Helpers ----- */
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-/* ----- init ----- */
-render();
-renderPendingList();
-updateOwnerUI();
-
+/* ----- Init ----- */
+render(); updateOwnerUI(); renderPendingList();
 </script>
 </body>
 </html>
