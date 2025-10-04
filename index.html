@@ -1,229 +1,289 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INDOVP</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>INDOVP Demon List — Owner Mode</title>
 <style>
-:root{
---bg-light:#f0f0f0;--bg-dark:#121212;--text-light:#222;--text-dark:#eee;
---primary-color:#2a6cf4;--primary-hover:#1d4bd1;
---win-color:#00ff00;--loss-color:#ff4444;
-}
-body{font-family:Arial,sans-serif;margin:0;transition:all 0.4s;color:var(--text-light);background-color:var(--bg-light);}
-body.dark{background-color:var(--bg-dark);color:var(--text-dark);}
-.tab-container{display:flex;justify-content:center;gap:20px;position:relative;z-index:2;transition:all 0.4s;}
-.tab-button{padding:10px 20px;border:none;border-radius:10px 10px 0 0;cursor:pointer;transition:all 0.3s;color:var(--text-light);background:white;box-shadow:0 0 5px rgba(0,0,0,0.2);}
-.tab-button:hover,.tab-button.active{background:#e0e0e0;box-shadow:0 0 10px rgba(0,0,0,0.4);}
-body.dark .tab-button{background:var(--primary-color);color:white;box-shadow:0 0 10px rgba(42,108,244,0.7);}
-body.dark .tab-button:hover,.tab-button.active{background:var(--primary-hover);box-shadow:0 0 15px rgba(42,108,244,0.9);}
-.content{max-width:800px;margin:auto;background:white;padding:30px;border-radius:0 0 12px 12px;min-height:300px;position:relative;overflow:hidden;transition:all 0.4s;}
-body.dark .content{background:#222;box-shadow:0 0 30px rgba(255,255,255,0.1);}
-.tab-content{opacity:0;max-height:0;overflow:hidden;transition:opacity 0.4s ease,max-height 0.4s ease;pointer-events:none;position:absolute;top:0;left:0;right:0;bottom:0;padding:30px;box-sizing:border-box;}
-.tab-content.active{opacity:1;max-height:2000px;pointer-events:auto;position:relative;}
-img{width:100px;border-radius:50%;display:block;margin-bottom:15px;}
-a{text-decoration:none;color:var(--primary-color);}
-a:hover{color:var(--primary-hover);}
-#darkModeToggle{position:fixed;top:15px;right:15px;background:var(--primary-color);border:none;color:white;padding:10px 15px;border-radius:25px;cursor:pointer;z-index:10;transition:all 0.3s;}
-#darkModeToggle:hover{background:var(--primary-hover);}
-ul.friends-list{list-style:none;padding-left:0;}
-ul.friends-list li{padding:5px 0;font-weight:600;}
-canvas{border:2px solid #444;margin-top:10px;}
-select{padding:8px;border-radius:8px;margin-bottom:10px;cursor:pointer;}
-button{padding:5px 10px;margin:3px;border-radius:5px;cursor:pointer;transition:all 0.2s;}
-button:hover{box-shadow:0 0 10px var(--primary-color);}
-.win{color:var(--win-color);font-weight:bold;}
-.loss{color:var(--loss-color);font-weight:bold;}
+  :root{--bg:#0f1720;--card:#111827;--accent:#2a6cf4;--ok:#22c55e;--bad:#ef4444;color:#e6eef6}
+  body{background:var(--bg);color:var(--color,#e6eef6);font-family:Inter,Arial,Helvetica,sans-serif;padding:18px}
+  h1{text-align:center;margin:6px 0 18px}
+  .wrap{max-width:980px;margin:0 auto}
+  .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+  input[type="text"], input[type="number"], select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:#0b1220;color:var(--color);min-width:120px}
+  button{background:var(--accent);color:white;border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+  .card{background:var(--card);padding:12px;border-radius:10px;margin:10px 0;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
+  .level-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .difficulty{padding:5px 8px;border-radius:6px;font-weight:700;color:#081223}
+  .Easy{background:#34d399}
+  .Medium{background:#60a5fa}
+  .Hard{background:#fb923c}
+  .Insane{background:#a78bfa}
+  .Extreme{background:#f43f5e}
+  .records{margin-top:10px}
+  ul{list-style:none;padding:0;margin:0}
+  li.record{display:flex;justify-content:space-between;padding:8px;border-radius:6px;background:rgba(255,255,255,0.02);margin-bottom:6px}
+  .pending-bubble{background:#f59e0b;color:#081223;padding:4px 8px;border-radius:999px;font-weight:700}
+  .owner-panel{margin-top:12px;padding:12px;border-radius:10px;background:rgba(42,108,244,0.06)}
+  .muted{opacity:0.7;font-size:13px}
+  .smallbtn{padding:6px 8px;border-radius:6px;border:none;cursor:pointer}
+  .approve{background:var(--ok);color:#021205}
+  .reject{background:var(--bad);color:white}
+  .flex{display:flex;gap:8px;align-items:center}
+  .right{margin-left:auto}
+  .hint{font-size:13px;opacity:0.8}
 </style>
 </head>
 <body>
-<button id="darkModeToggle">Switch to Dark Mode</button>
+<div class="wrap">
+  <h1>INDOVP — Demon List mit Owner-Modus</h1>
 
-<div class="tab-container">
-<button class="tab-button active" onclick="openTab('about')">🧍 About Me</button>
-<button class="tab-button" onclick="openTab('games')">🎮 Mini-Games</button>
-<button class="tab-button" onclick="openTab('links')">🔗 Links</button>
-<button class="tab-button" onclick="openTab('friends')">👥 Friends</button>
-</div>
+  <div class="card">
+    <div class="controls">
+      <div style="display:flex;gap:8px;align-items:center">
+        <label class="muted">Owner-Code eingeben:</label>
+        <input id="ownerCodeInput" type="text" placeholder="Code eingeben (z.B. 41342)">
+        <button id="ownerLoginBtn">Login</button>
+        <button id="ownerLogoutBtn" class="ghost" style="display:none">Logout</button>
+      </div>
+      <div class="right">
+        <span id="ownerBadge" style="display:none" class="pending-bubble">Owner-Mode ON</span>
+      </div>
+    </div>
+    <div class="muted">Gib <strong>41342</strong> ein, um Owner zu werden. Owner kann Pending-Runs prüfen & freigeben.</div>
+  </div>
 
-<div class="content">
+  <div id="levelsContainer"></div>
 
-<div id="about" class="tab-content active">
-<h2>About Me</h2>
-<img src="profile.png" alt="INDOVP">
-<p>Hello! I'm INDOVP – welcome to my website! Here you'll find info about me, data, links, interesting facts, events, mini-games and much more! 😎</p>
-<p>I come from good old Germany/NRW and if I make videos at all, it's mostly about Roblox, Brawl Stars and a bit of Minecraft.</p>
-<p>Why are you reading this?</p>
-</div>
-
-<div id="games" class="tab-content">
-<h2>Mini-Games</h2>
-<select id="gameSelect" onchange="showGame(this.value)">
-<option value="">Select Game</option>
-<option value="ssp">🪨 Rock-Paper-Scissors</option>
-<option value="snake">🐍 Snake</option>
-<option value="reaction">⚡ Reaction Time</option>
-<option value="trivia">❓ Minecraft Trivia</option>
-</select>
-
-<!-- RPS -->
-<div id="ssp-game" style="display:none;">
-<h3>Rock-Paper-Scissors</h3>
-<button onclick="playSSP('Rock')">🪨 Rock</button>
-<button onclick="playSSP('Paper')">📄 Paper</button>
-<button onclick="playSSP('Scissors')">✌️ Scissors</button>
-<p id="ssp-result"></p>
-<p>Wins: <span id="sspWins">0</span> | Loss: <span id="sspLoss">0</span></p>
-<label><input type="checkbox" id="sspAI"> Pro AI Mode</label>
-</div>
-
-<!-- Snake -->
-<div id="snake-game" style="display:none;">
-<h3>Snake</h3>
-<canvas id="snakeCanvas" width="300" height="300"></canvas>
-<p>Score: <span id="snakeScore">0</span></p>
-<p>Wins: <span id="snakeWins">0</span> | Loss: <span id="snakeLoss">0</span></p>
-<p>Use WASD or Arrow Keys, R to reset</p>
-</div>
-
-<!-- Reaction -->
-<div id="reaction-game" style="display:none;">
-<h3>Reaction Time</h3>
-<button onclick="startReactionGame()">Start</button>
-<p id="reactionResult"></p>
-<p>Wins: <span id="reactionWins">0</span> | Loss: <span id="reactionLoss">0</span></p>
-</div>
-
-<!-- Trivia -->
-<div id="trivia-game" style="display:none;">
-<h3>Minecraft Trivia</h3>
-<button onclick="startTrivia()">Start Trivia</button>
-<p id="triviaQuestion"></p>
-<input type="text" id="triviaAnswer" placeholder="Your answer">
-<button onclick="submitTrivia()">Submit</button>
-<p id="triviaResult"></p>
-<p>Wins: <span id="triviaWins">0</span> | Loss: <span id="triviaLoss">0</span></p>
-</div>
-
-</div>
-
-<div id="links" class="tab-content">
-<h2>Links</h2>
-<p>My YouTube channel:</p>
-<a href="https://www.youtube.com/@INDOVP" target="_blank">➡️ INDOVP on YouTube</a><br/><br/>
-<p>My Twitch channel:</p>
-<a href="https://www.twitch.tv/jo31erde" target="_blank">➡️ twitch.tv/jo31erde</a><br/><br/>
-<p>My Twitter:</p>
-<a href="https://twitter.com/INDOVP" target="_blank">➡️ @INDOVP</a><br/><br/>
-<p>Most popular video:</p>
-<iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
-</div>
-
-<div id="friends" class="tab-content">
-<h2>Friends</h2>
-<ul class="friends-list">
-<li>Jenbi</li><li>Fablo</li><li>Gustav</li><li>Maksim</li><li>Felix</li><li>Fabian</li>
-<li>Riza</li><li>Sico</li><li>Ismail</li><li>VKLuca</li><li>Jayden</li><li>Nico</li>
-<li>Daniel</li><li>Svend</li><li>Tahlia</li><li>Arik</li><li>Gehas</li><li>Tim</li><li>Johann</li>
-</ul>
+  <div id="ownerPanel" class="card owner-panel" style="display:none">
+    <h3>Owner — Pending-Fach</h3>
+    <div id="pendingList" style="min-height:40px"></div>
+    <div class="hint">Pending-Runs sind noch nicht öffentlich — approve = landet unter dem Level, reject = weg.</div>
+  </div>
 </div>
 
 <script>
-// Dark Mode
-const darkModeToggle=document.getElementById('darkModeToggle');
-darkModeToggle.addEventListener('click',()=>{
-document.body.classList.toggle('dark');
-darkModeToggle.textContent=document.body.classList.contains('dark')?'Switch to Light Mode':'Switch to Dark Mode';
-localStorage.setItem('darkMode',document.body.classList.contains('dark')?'enabled':'disabled');
-});
-window.addEventListener('load',()=>{
-if(localStorage.getItem('darkMode')==='enabled'){document.body.classList.add('dark');darkModeToggle.textContent='Switch to Light Mode';}
-});
-
-// Tabs
-function openTab(tab){document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));document.getElementById(tab).classList.add('active');event.target.classList.add('active');}
-
-// Dropdown
-function showGame(val){['ssp-game','snake-game','reaction-game','trivia-game'].forEach(id=>document.getElementById(id).style.display='none');if(val)document.getElementById(val+'-game').style.display='block';}
-
-// RPS
-let sspWins=0,sspLoss=0;
-function playSSP(choice){
-const opts=['Rock','Paper','Scissors'];
-let bot=opts[Math.floor(Math.random()*3)];
-if(document.getElementById('sspAI').checked){bot=opts[(opts.indexOf(choice)+Math.floor(Math.random()*3))%3];}
-let res='';
-if(choice===bot) res='Tie!';
-else if((choice==='Rock'&&bot==='Scissors')||(choice==='Paper'&&bot==='Rock')||(choice==='Scissors'&&bot==='Paper')){res='You Win!';sspWins++;}else{res='You Lose!';sspLoss++;}
-document.getElementById('ssp-result').textContent=`${choice} vs ${bot} → ${res}`;
-document.getElementById('sspWins').textContent=sspWins;
-document.getElementById('sspLoss').textContent=sspLoss;
-}
-
-// Snake
-const snakeCanvas=document.getElementById('snakeCanvas');const ctx=snakeCanvas.getContext('2d');const box=15;
-let snake=[{x:5*box,y:5*box}],dir='';let food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};
-let snakeScore=0,snakeWins=0,snakeLoss=0;
-function resetSnake(){snake=[{x:5*box,y:5*box}];dir='';food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};snakeScore=0;clearInterval(snakeInterval);snakeInterval=setInterval(drawSnake,100);}
-function drawSnake(){
-ctx.fillStyle='#000';ctx.fillRect(0,0,300,300);
-snake.forEach((s,i)=>{ctx.fillStyle=i===0?'lime':'white';ctx.fillRect(s.x,s.y,box,box);});
-ctx.fillStyle='red';ctx.fillRect(food.x,food.y,box,box);
-let head={x:snake[0].x,y:snake[0].y};
-if(dir==='LEFT') head.x-=box;if(dir==='RIGHT') head.x+=box;if(dir==='UP') head.y-=box;if(dir==='DOWN') head.y+=box;
-if(head.x===food.x&&head.y===food.y){snakeScore++;food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};}else snake.pop();
-if(head.x<0||head.y<0||head.x>=300||head.y>=300||collision(head,snake)){snakeLoss++;clearInterval(snakeInterval);alert('Game Over');}
-snake.unshift(head);
-document.getElementById('snakeScore').textContent=snakeScore;
-document.getElementById('snakeWins').textContent=snakeWins;
-document.getElementById('snakeLoss').textContent=snakeLoss;
-}
-function collision(h,arr){for(let i=1;i<arr.length;i++)if(h.x===arr[i].x&&h.y===arr[i].y)return true;return false;}
-document.addEventListener('keydown',e=>{
-if(e.key==='ArrowLeft'||e.key==='a')dir='LEFT';
-if(e.key==='ArrowRight'||e.key==='d')dir='RIGHT';
-if(e.key==='ArrowUp'||e.key==='w')dir='UP';
-if(e.key==='ArrowDown'||e.key==='s')dir='DOWN';
-if(e.key==='r')resetSnake();
-});
-let snakeInterval=setInterval(drawSnake,100);
-
-// Reaction
-let reactionStart=false,reactionTimeout,reactionWins=0,reactionLoss=0;
-function startReactionGame(){reactionStart=false;document.getElementById('reactionResult').textContent='Wait for green...';clearTimeout(reactionTimeout);reactionTimeout=setTimeout(()=>{reactionStart=true;document.getElementById('reactionResult').textContent='CLICK NOW!';},Math.random()*3000+2000);}
-document.addEventListener('click',()=>{if(document.getElementById('reaction-game').style.display==='block'){if(reactionStart){reactionWins++;document.getElementById('reactionResult').textContent='Success!';reactionStart=false;}else{reactionLoss++;document.getElementById('reactionResult').textContent='Too early!';}document.getElementById('reactionWins').textContent=reactionWins;document.getElementById('reactionLoss').textContent=reactionLoss;}});
-
-// Trivia
-const triviaQs=[
-{q:'What do you need to craft a crafting table?',a:'4 planks'},
-{q:'What mob explodes?',a:'creeper'},
-{q:'What do Endermen drop?',a:'ender pearl'},
-{q:'Which ore drops diamonds?',a:'diamond ore'},
-{q:'What animal gives wool?',a:'sheep'},
-{q:'What do you need to tame a wolf?',a:'bone'},
-{q:'Which mob is passive?',a:'cow'},
-{q:'Which block can be used to make a beacon?',a:'nether star'},
-{q:'Which potion is red?',a:'health potion'},
-{q:'Which dimension has the Ender Dragon?',a:'end'},
-{q:'What do you need to craft a furnace?',a:'8 cobblestone'},
-{q:'Which tool mines obsidian?',a:'diamond pickaxe'},
-{q:'Which mob drops rotten flesh?',a:'zombie'},
-{q:'Which mob drops string?',a:'spider'},
-{q:'Which biome has snow?',a:'snow biome'},
-{q:'Which block can you use to make TNT?',a:'sandstone'},
-{q:'Which potion makes you invisible?',a:'invisibility potion'},
-{q:'Which item lights portals?',a:'flint and steel'},
-{q:'Which food restores hunger quickly?',a:'steak'},
-{q:'Which mob drops feathers?',a:'chicken'},
+/* ----- Konfiguration: Levels (hier deine eigenen Level eintragen) ----- */
+const levels = [
+  { id: 101, name: "Bloodrush", creator: "CreatorA", difficulty: "Insane" },
+  { id: 102, name: "Skyfall", creator: "CreatorB", difficulty: "Hard" },
+  { id: 103, name: "NeonGate", creator: "CreatorC", difficulty: "Extreme" },
+  { id: 104, name: "EasyGrove", creator: "CreatorD", difficulty: "Easy" }
 ];
-let triviaCurrent=0;
-function startTrivia(){triviaCurrent=0;document.getElementById('triviaQuestion').textContent=triviaQs[triviaCurrent].q;document.getElementById('triviaAnswer').value='';}
-let triviaWins=0,triviaLoss=0;
-function submitTrivia(){let ans=document.getElementById('triviaAnswer').value.toLowerCase().trim();if(ans===triviaQs[triviaCurrent].a.toLowerCase()){triviaWins++;document.getElementById('triviaResult').textContent='Correct!';}else{triviaLoss++;document.getElementById('triviaResult').textContent='Wrong!';}triviaCurrent++;if(triviaCurrent<triviaQs.length){document.getElementById('triviaQuestion').textContent=triviaQs[triviaCurrent].q;document.getElementById('triviaAnswer').value='';}else{document.getElementById('triviaQuestion').textContent='End of Trivia!';}document.getElementById('triviaWins').textContent=triviaWins;document.getElementById('triviaLoss').textContent=triviaLoss;}
+const DIFF_ORDER = ["Easy","Medium","Hard","Insane","Extreme"];
 
-// Konami Code
-const konami=[38,38,40,40,37,39,37,39,66,65];let konamiIndex=0;
-document.addEventListener('keydown',e=>{if(e.keyCode===konami[konamiIndex]){konamiIndex++;if(konamiIndex===konami.length)window.location='https://www.youtube.com/watch?v=dQw4w9WgXcQ';}else konamiIndex=0;});
+/* ----- Storage-Helper ----- */
+function getPublicRecords(levelId){
+  return JSON.parse(localStorage.getItem('records_'+levelId)) || [];
+}
+function savePublicRecord(levelId,record){
+  const arr = getPublicRecords(levelId);
+  arr.push(record);
+  localStorage.setItem('records_'+levelId, JSON.stringify(arr));
+}
+function getPending(){
+  return JSON.parse(localStorage.getItem('pending_runs')) || [];
+}
+function savePending(arr){
+  localStorage.setItem('pending_runs', JSON.stringify(arr));
+}
+function addPending(levelId,record){
+  const p = getPending();
+  p.push({ levelId, record, ts: Date.now(), id: 'p'+Math.random().toString(36).slice(2,9) });
+  savePending(p);
+}
+
+/* ----- Owner-Auth (Session) ----- */
+const OWNER_CODE = "41342";
+function isOwner(){
+  return sessionStorage.getItem('isOwner') === '1';
+}
+function setOwner(flag){
+  if(flag) sessionStorage.setItem('isOwner','1');
+  else sessionStorage.removeItem('isOwner');
+  updateOwnerUI();
+}
+
+/* ----- UI Rendering ----- */
+const container = document.getElementById('levelsContainer');
+function render(){
+  container.innerHTML = '';
+  // Sort levels by difficulty order
+  const sorted = [...levels].sort((a,b)=>DIFF_ORDER.indexOf(a.difficulty)-DIFF_ORDER.indexOf(b.difficulty));
+  sorted.forEach(lvl => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="level-head">
+        <div>
+          <div style="font-weight:800">${lvl.name}</div>
+          <div class="muted">Creator: ${lvl.creator}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end">
+          <div class="difficulty ${lvl.difficulty}">${lvl.difficulty}</div>
+          <div class="muted" style="margin-top:6px">ID: ${lvl.id}</div>
+        </div>
+      </div>
+      <div class="records">
+        <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
+          <div class="muted">Rekord einreichen:</div>
+          <input type="text" id="name_${lvl.id}" placeholder="Dein Name">
+          <input type="number" id="progress_${lvl.id}" placeholder="Prozent" min="0" max="100">
+          <input type="number" id="attempts_${lvl.id}" placeholder="Versuche" min="1">
+          <button onclick="handleSubmit(${lvl.id})">Einreichen</button>
+        </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+          <div class="muted">Öffentliche Rekorde</div>
+          <div class="muted" style="margin-left:auto">Anzahl: <span id="pubcount_${lvl.id}">0</span></div>
+        </div>
+        <ul id="records_${lvl.id}" style="margin-top:8px"></ul>
+      </div>
+    `;
+    container.appendChild(card);
+    renderPublicRecords(lvl.id);
+  });
+  updateOwnerUI();
+}
+
+/* ----- Render öffentliche records für ein level ----- */
+function renderPublicRecords(levelId){
+  const ul = document.getElementById('records_'+levelId);
+  if(!ul) return;
+  const recs = getPublicRecords(levelId);
+  ul.innerHTML = '';
+  recs.forEach(r=>{
+    const li = document.createElement('li');
+    li.className = 'record';
+    li.innerHTML = `<div>${escapeHTML(r.name)} — ${escapeHTML(r.progress)}% in ${escapeHTML(r.attempts)} tries</div>
+                    <div class="muted">${new Date(r.ts).toLocaleString()}</div>`;
+    ul.appendChild(li);
+  });
+  const cnt = document.getElementById('pubcount_'+levelId);
+  if(cnt) cnt.textContent = recs.length;
+}
+
+/* ----- Submission Handler: landet in PENDING ----- */
+function handleSubmit(levelId){
+  const name = document.getElementById('name_'+levelId).value?.trim();
+  const progress = document.getElementById('progress_'+levelId).value;
+  const attempts = document.getElementById('attempts_'+levelId).value;
+  if(!name || progress==='' || attempts===''){ alert('Bitte Name, Prozent und Versuche ausfüllen.'); return; }
+  const record = { name, progress: Number(progress), attempts: Number(attempts), ts: Date.now() };
+  // Save to pending (owner has to approve)
+  addPending(levelId, record);
+  // reset inputs
+  document.getElementById('name_'+levelId).value='';
+  document.getElementById('progress_'+levelId).value='';
+  document.getElementById('attempts_'+levelId).value='';
+  alert('Run eingereicht — wird dem Owner zur Prüfung vorgelegt.');
+  renderPendingList();
+}
+
+/* ----- Owner UI & Pending List ----- */
+const ownerPanel = document.getElementById('ownerPanel');
+const pendingListEl = document.getElementById('pendingList');
+
+function renderPendingList(){
+  const pending = getPending();
+  if(!isOwner()){
+    pendingListEl.innerHTML = '<div class="muted">Du musst Owner sein, um Pending-Runs zu sehen.</div>';
+    return;
+  }
+  if(pending.length===0){ pendingListEl.innerHTML = '<div class="muted">Keine Pending-Runs.</div>'; return; }
+  pendingListEl.innerHTML = '';
+  pending.forEach(item=>{
+    const lvl = levels.find(x=>x.id===item.levelId) || {name:'Unknown', id:item.levelId};
+    const wrap = document.createElement('div');
+    wrap.style.display='flex';
+    wrap.style.gap='8px';
+    wrap.style.alignItems='center';
+    wrap.style.marginBottom='8px';
+    wrap.innerHTML = `
+      <div style="flex:1">
+        <div style="font-weight:700">${escapeHTML(lvl.name)} <span class="muted">(#${lvl.id})</span></div>
+        <div class="muted">${escapeHTML(item.record.name)} — ${escapeHTML(item.record.progress)}% in ${escapeHTML(item.record.attempts)} tries • ${new Date(item.record.ts).toLocaleString()}</div>
+      </div>
+    `;
+    const btns = document.createElement('div');
+    btns.style.display='flex'; btns.style.gap='6px';
+    const approve = document.createElement('button'); approve.textContent='Approve'; approve.className='smallbtn approve';
+    const reject = document.createElement('button'); reject.textContent='Reject'; reject.className='smallbtn reject';
+    approve.onclick = ()=>{ approvePending(item.id); };
+    reject.onclick = ()=>{ rejectPending(item.id); };
+    btns.appendChild(approve); btns.appendChild(reject);
+    wrap.appendChild(btns);
+    pendingListEl.appendChild(wrap);
+  });
+}
+
+function approvePending(pendingId){
+  let pending = getPending();
+  const idx = pending.findIndex(p=>p.id===pendingId);
+  if(idx===-1){ alert('Pending nicht gefunden.'); renderPendingList(); return; }
+  const item = pending[idx];
+  // move to public
+  savePublicRecord(item.levelId, { ...item.record, ts: Date.now() });
+  // remove pending
+  pending.splice(idx,1);
+  savePending(pending);
+  renderPendingList();
+  renderPublicRecords(item.levelId);
+}
+
+function rejectPending(pendingId){
+  let pending = getPending();
+  const idx = pending.findIndex(p=>p.id===pendingId);
+  if(idx===-1){ alert('Pending nicht gefunden.'); renderPendingList(); return; }
+  // remove only
+  pending.splice(idx,1);
+  savePending(pending);
+  renderPendingList();
+}
+
+/* ----- Owner Login UI ----- */
+const ownerLoginBtn = document.getElementById('ownerLoginBtn');
+const ownerLogoutBtn = document.getElementById('ownerLogoutBtn');
+const ownerCodeInput = document.getElementById('ownerCodeInput');
+const ownerBadge = document.getElementById('ownerBadge');
+
+ownerLoginBtn.addEventListener('click', ()=>{
+  const code = ownerCodeInput.value?.trim();
+  if(code === OWNER_CODE){
+    setOwner(true);
+    ownerCodeInput.value='';
+    alert('Owner-Login erfolgreich. Pending-Fach sichtbar.');
+  } else {
+    alert('Falscher Code.');
+  }
+});
+ownerLogoutBtn.addEventListener('click', ()=>{ setOwner(false); alert('Owner-Logout.'); });
+
+function updateOwnerUI(){
+  if(isOwner()){
+    ownerPanel.style.display = 'block';
+    ownerBadge.style.display = 'inline-block';
+    ownerLogoutBtn.style.display = 'inline-block';
+    ownerLoginBtn.style.display = 'none';
+    ownerCodeInput.style.display = 'none';
+  } else {
+    ownerPanel.style.display = 'none';
+    ownerBadge.style.display = 'none';
+    ownerLogoutBtn.style.display = 'none';
+    ownerLoginBtn.style.display = 'inline-block';
+    ownerCodeInput.style.display = 'inline-block';
+  }
+  renderPendingList();
+}
+
+/* ----- helpers ----- */
+function escapeHTML(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ----- init ----- */
+render();
+renderPendingList();
+updateOwnerUI();
+
 </script>
 </body>
 </html>
