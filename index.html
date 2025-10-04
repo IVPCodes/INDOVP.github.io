@@ -58,6 +58,13 @@
       margin-top: 30px;
     }
     .ghost { display: none; }
+    .reject-btn {
+      background: crimson;
+      margin-left: 10px;
+    }
+    .reject-btn:hover {
+      background: darkred;
+    }
   </style>
 </head>
 <body>
@@ -178,10 +185,22 @@
       const box=document.getElementById("pendingRuns");
       box.innerHTML="";
       for(const lid in records){
-        records[lid].forEach(r=>{
+        records[lid].forEach((r,idx)=>{
           const p=document.createElement("p");
           const level=levels.find(l=>l.id==lid);
           p.textContent=`[${level.name}] ${r.name} — ${r.percent}% in ${r.attempts} Attempts`;
+          if(isOwner){
+            const reject=document.createElement("button");
+            reject.innerText="Ablehnen";
+            reject.className="reject-btn";
+            reject.onclick=()=>{
+              records[lid].splice(idx,1);
+              saveRecords();
+              renderRecords(lid);
+              renderPending();
+            };
+            p.appendChild(reject);
+          }
           box.appendChild(p);
         });
       }
