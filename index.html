@@ -65,6 +65,13 @@
     .reject-btn:hover {
       background: darkred;
     }
+    .accept-btn {
+      background: green;
+      margin-left: 10px;
+    }
+    .accept-btn:hover {
+      background: darkgreen;
+    }
   </style>
 </head>
 <body>
@@ -84,25 +91,29 @@
 
   <!-- Owner Section -->
   <div id="ownerSection" class="owner-section ghost">
-    <h2>📥 Submitted Runs (Owner)</h2>
+    <h2>📥 Pending Runs (Owner)</h2>
     <div id="pendingRuns"></div>
   </div>
 
   <script>
     // --- Levels Data ---
     const levels = [
-      {id:1, name:"", difficulty:"Easy Demon", creator:"Player123"},
-      {id:2, name:"", difficulty:"Medium Demon", creator:"SigmaXD"},
-      {id:3, name:"", difficulty:"Hard Demon", creator:"GigaPro"},
-      {id:4, name:"", difficulty:"Insane Demon", creator:"Tryhard"},
-      {id:5, name:"", difficulty:"Extreme Demon", creator:"Sweat"},
+      {id:1, name:"", difficulty:"Easy Demon", creator:"INDOVP"},
+      {id:2, name:"", difficulty:"Medium Demon", creator:"INDOVP"},
+      {id:3, name:"", difficulty:"Hard Demon", creator:"INDOVP"},
+      {id:4, name:"", difficulty:"Insane Demon", creator:"INDOVP"},
+      {id:5, name:"", difficulty:"Extreme Demon", creator:"INDOVP"},
     ];
 
     // --- LocalStorage ---
     let records = JSON.parse(localStorage.getItem("demonRecords") || "{}");
+    let pending = JSON.parse(localStorage.getItem("pendingRuns") || "[]");
 
     function saveRecords(){
       localStorage.setItem("demonRecords", JSON.stringify(records));
+    }
+    function savePending(){
+      localStorage.setItem("pendingRuns", JSON.stringify(pending));
     }
 
     // --- Render Levels ---
@@ -147,12 +158,11 @@
       const percent=document.getElementById("percent-"+levelId).value;
       const att=document.getElementById("att-"+levelId).value;
       if(!name||!percent||!att) return alert("Please fill out all fields!");
-      if(!records[levelId]) records[levelId]=[];
-      const run={name,percent,attempts:att};
-      records[levelId].push(run);
-      saveRecords();
-      renderRecords(levelId);
-      if(isOwner) addPending(levelId, run);
+      const run={levelId,name,percent,attempts:att};
+      pending.push(run);
+      savePending();
+      alert("✅ Run submitted for review!");
+      if(isOwner) renderPending();
     }
 
     // --- Owner Mode ---
@@ -180,33 +190,41 @@
       document.getElementById("ownerSection").classList.add("ghost");
     };
 
-    // --- Pending Runs (Owner Only) ---
+    // --- Pending Runs ---
     function renderPending(){
       const box=document.getElementById("pendingRuns");
       box.innerHTML="";
-      for(const lid in records){
-        records[lid].forEach((r,idx)=>{
-          const p=document.createElement("p");
-          const level=levels.find(l=>l.id==lid);
-          p.textContent=`[${level.name} ${level.difficulty}] ${r.name} — ${r.percent}% in ${r.attempts} Attempts`;
-          if(isOwner){
-            const reject=document.createElement("button");
-            reject.innerText="Reject";
-            reject.className="reject-btn";
-            reject.onclick=()=>{
-              records[lid].splice(idx,1);
-              saveRecords();
-              renderRecords(lid);
-              renderPending();
-            };
-            p.appendChild(reject);
-          }
-          box.appendChild(p);
-        });
-      }
-    }
-    function addPending(levelId, run){
-      if(isOwner) renderPending();
+      pending.forEach((r,idx)=>{
+        const level=levels.find(l=>l.id==r.levelId);
+        const p=document.createElement("p");
+        p.textContent=`[${level.name} ${level.difficulty}] ${r.name} — ${r.percent}% in ${r.attempts} Attempts`;
+        
+        const accept=document.createElement("button");
+        accept.innerText="Accept";
+        accept.className="accept-btn";
+        accept.onclick=()=>{
+          if(!records[r.levelId]) records[r.levelId]=[];
+          records[r.levelId].push(r);
+          saveRecords();
+          pending.splice(idx,1);
+          savePending();
+          renderRecords(r.levelId);
+          renderPending();
+        };
+        
+        const reject=document.createElement("button");
+        reject.innerText="Reject";
+        reject.className="reject-btn";
+        reject.onclick=()=>{
+          pending.splice(idx,1);
+          savePending();
+          renderPending();
+        };
+        
+        p.appendChild(accept);
+        p.appendChild(reject);
+        box.appendChild(p);
+      });
     }
 
     // --- Init ---
