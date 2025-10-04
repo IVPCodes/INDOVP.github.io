@@ -73,7 +73,7 @@
   <!-- Owner Login -->
   <h2 style="text-align:center;margin-bottom:12px">🔑 Owner Login</h2>
   <div class="owner-login-box">
-    <input id="ownerCodeInput" type="text" placeholder="Owner Code">
+    <input id="ownerCodeInput" type="text" placeholder="Owner Code (e.g. 41342)">
     <button id="ownerLoginBtn">Login</button>
     <button id="ownerLogoutBtn" class="ghost">Logout</button>
     <p id="ownerStatus"></p>
@@ -91,11 +91,11 @@
   <script>
     // --- Levels Data ---
     const levels = [
-      {id:1, name:"Example-Easy", difficulty:"Easy", creator:"Player123"},
-      {id:2, name:"Example-Medium", difficulty:"Medium", creator:"SigmaXD"},
-      {id:3, name:"Example-Hard", difficulty:"Hard", creator:"GigaPro"},
-      {id:4, name:"Example-Insane", difficulty:"Insane", creator:"Tryhard"},
-      {id:5, name:"Example-Extreme", difficulty:"Extreme", creator:"Sweat"},
+      {id:1, name:"", difficulty:"Easy Demon", creator:"Player123"},
+      {id:2, name:"", difficulty:"Medium Demon", creator:"SigmaXD"},
+      {id:3, name:"", difficulty:"Hard Demon", creator:"GigaPro"},
+      {id:4, name:"", difficulty:"Insane Demon", creator:"Tryhard"},
+      {id:5, name:"", difficulty:"Extreme Demon", creator:"Sweat"},
     ];
 
     // --- LocalStorage ---
@@ -188,7 +188,7 @@
         records[lid].forEach((r,idx)=>{
           const p=document.createElement("p");
           const level=levels.find(l=>l.id==lid);
-          p.textContent=`[${level.name}] ${r.name} — ${r.percent}% in ${r.attempts} Attempts`;
+          p.textContent=`[${level.name} ${level.difficulty}] ${r.name} — ${r.percent}% in ${r.attempts} Attempts`;
           if(isOwner){
             const reject=document.createElement("button");
             reject.innerText="Reject";
