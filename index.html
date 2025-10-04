@@ -1,198 +1,197 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>INDOVP Demon List — Owner Mode</title>
-<style>
-  :root{--bg:#0f1720;--card:#111827;--accent:#2a6cf4;--ok:#22c55e;--bad:#ef4444;color:#e6eef6}
-  body{background:var(--bg);color:var(--color,#e6eef6);font-family:Inter,Arial,Helvetica,sans-serif;padding:18px}
-  h1{text-align:center;margin:6px 0 18px}
-  .wrap{max-width:980px;margin:0 auto}
-  input[type="text"], input[type="number"]{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#0b1220;color:var(--color)}
-  button{background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
-  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.2)}
-  .card{background:var(--card);padding:14px;border-radius:10px;margin:12px 0;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
-  .level-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
-  .difficulty{padding:5px 8px;border-radius:6px;font-weight:700;color:#081223}
-  .Easy{background:#34d399}
-  .Medium{background:#60a5fa}
-  .Hard{background:#fb923c}
-  .Insane{background:#a78bfa}
-  .Extreme{background:#f43f5e}
-  ul{list-style:none;padding:0;margin:0}
-  li.record{display:flex;justify-content:space-between;padding:8px;border-radius:6px;background:rgba(255,255,255,0.05);margin-bottom:6px}
-  .pending-bubble{background:#f59e0b;color:#081223;padding:6px 10px;border-radius:999px;font-weight:700}
-  .owner-panel{margin-top:12px;padding:12px;border-radius:10px;background:rgba(42,108,244,0.06)}
-  .muted{opacity:0.7;font-size:13px}
-  .smallbtn{padding:6px 8px;border-radius:6px;border:none;cursor:pointer}
-  .approve{background:var(--ok);color:#021205}
-  .reject{background:var(--bad);color:white}
-  .owner-login-box{display:flex;justify-content:center;gap:10px;margin:20px 0}
-</style>
+  <meta charset="UTF-8">
+  <title>INDOVP Demon List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .level {
+      background: #222;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+    }
+    .record {
+      margin-left: 15px;
+      font-size: 14px;
+    }
+    input, button {
+      margin: 5px 0;
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+    }
+    input {
+      width: 120px;
+    }
+    button {
+      background: #2a6cf4;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1d4bd1;
+    }
+    .owner-login-box {
+      background: #222;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 0 auto 30px;
+      max-width: 400px;
+      text-align: center;
+    }
+    .owner-section {
+      background: #333;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 30px;
+    }
+    .ghost { display: none; }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>INDOVP — Demon List</h1>
+  <h1>INDOVP Demon List</h1>
 
-  <!-- Owner Login Bereich -->
-  <div class="card">
-    <h2 style="text-align:center;margin-bottom:12px">🔑 Owner-Login</h2>
-    <div class="owner-login-box">
-      <input id="ownerCodeInput" type="text" placeholder="Owner-Code (z.B. 41342)" style="flex:1;max-width:300px;text-align:center;font-size:16px">
-      <button id="ownerLoginBtn">Login</button>
-      <button id="ownerLogoutBtn" class="ghost" style="display:none">Logout</button>
-    </div>
-    <div style="text-align:center;margin-top:8px">
-      <span id="ownerBadge" style="display:none" class="pending-bubble">Owner-Mode ON</span>
-    </div>
+  <!-- Owner Login -->
+  <h2 style="text-align:center;margin-bottom:12px">🔑 Owner-Login</h2>
+  <div class="owner-login-box">
+    <input id="ownerCodeInput" type="text" placeholder="Owner-Code (z.B. 41342)">
+    <button id="ownerLoginBtn">Login</button>
+    <button id="ownerLogoutBtn" class="ghost">Logout</button>
+    <p id="ownerStatus"></p>
   </div>
 
-  <div id="levelsContainer"></div>
+  <!-- Level Liste -->
+  <div id="levels"></div>
 
-  <div id="ownerPanel" class="card owner-panel" style="display:none">
-    <h3>Owner — Pending-Fach</h3>
-    <div id="pendingList" style="min-height:40px"></div>
-    <div class="muted">Hier siehst du alle eingereichten Runs. Approve = öffentlich, Reject = gelöscht.</div>
+  <!-- Owner Bereich -->
+  <div id="ownerSection" class="owner-section ghost">
+    <h2>📥 Eingereichte Runs (Owner)</h2>
+    <div id="pendingRuns"></div>
   </div>
-</div>
 
-<script>
-/* ----- Levels eintragen ----- */
-const levels = [
-  { id: 101, name: "Bloodrush", creator: "CreatorA", difficulty: "Insane" },
-  { id: 102, name: "Skyfall", creator: "CreatorB", difficulty: "Hard" },
-  { id: 103, name: "NeonGate", creator: "CreatorC", difficulty: "Extreme" },
-  { id: 104, name: "EasyGrove", creator: "CreatorD", difficulty: "Easy" }
-];
-const DIFF_ORDER = ["Easy","Medium","Hard","Insane","Extreme"];
+  <script>
+    // --- Daten: Level Liste ---
+    const levels = [
+      {id:1, name:"Beispiel-Easy", difficulty:"Easy", creator:"Player123"},
+      {id:2, name:"Beispiel-Medium", difficulty:"Medium", creator:"SigmaXD"},
+      {id:3, name:"Beispiel-Hard", difficulty:"Hard", creator:"GigaPro"},
+      {id:4, name:"Beispiel-Insane", difficulty:"Insane", creator:"Tryhard"},
+      {id:5, name:"Beispiel-Extreme", difficulty:"Extreme", creator:"Sweat"},
+    ];
 
-/* ----- Storage ----- */
-function getPublicRecords(levelId){ return JSON.parse(localStorage.getItem('records_'+levelId)) || []; }
-function savePublicRecord(levelId,record){
-  const arr=getPublicRecords(levelId); arr.push(record);
-  localStorage.setItem('records_'+levelId, JSON.stringify(arr));
-}
-function getPending(){ return JSON.parse(localStorage.getItem('pending_runs')) || []; }
-function savePending(arr){ localStorage.setItem('pending_runs', JSON.stringify(arr)); }
-function addPending(levelId,record){
-  const p=getPending(); p.push({ levelId, record, ts:Date.now(), id:'p'+Math.random().toString(36).slice(2,9) });
-  savePending(p);
-}
+    // --- LocalStorage ---
+    let records = JSON.parse(localStorage.getItem("demonRecords") || "{}");
 
-/* ----- Owner Auth ----- */
-const OWNER_CODE="41342";
-function isOwner(){ return sessionStorage.getItem('isOwner')==='1'; }
-function setOwner(flag){ flag?sessionStorage.setItem('isOwner','1'):sessionStorage.removeItem('isOwner'); updateOwnerUI(); }
+    function saveRecords(){
+      localStorage.setItem("demonRecords", JSON.stringify(records));
+    }
 
-/* ----- Render Levels ----- */
-const container=document.getElementById('levelsContainer');
-function render(){
-  container.innerHTML='';
-  const sorted=[...levels].sort((a,b)=>DIFF_ORDER.indexOf(a.difficulty)-DIFF_ORDER.indexOf(b.difficulty));
-  sorted.forEach(lvl=>{
-    const card=document.createElement('div');
-    card.className='card';
-    card.innerHTML=`
-      <div class="level-head">
-        <div>
-          <div style="font-weight:800">${lvl.name}</div>
-          <div class="muted">Creator: ${lvl.creator}</div>
-        </div>
-        <div>
-          <div class="difficulty ${lvl.difficulty}">${lvl.difficulty}</div>
-          <div class="muted" style="margin-top:6px">ID: ${lvl.id}</div>
-        </div>
-      </div>
-      <div class="records">
-        <div style="margin-top:10px">
-          <input type="text" id="name_${lvl.id}" placeholder="Name">
-          <input type="number" id="progress_${lvl.id}" placeholder="%" min="0" max="100">
-          <input type="number" id="attempts_${lvl.id}" placeholder="Attempts" min="1">
-          <button onclick="handleSubmit(${lvl.id})">Einreichen</button>
-        </div>
-        <h4 style="margin-top:12px">Öffentliche Rekorde (<span id="pubcount_${lvl.id}">0</span>)</h4>
-        <ul id="records_${lvl.id}"></ul>
-      </div>`;
-    container.appendChild(card);
-    renderPublicRecords(lvl.id);
-  });
-}
-function renderPublicRecords(levelId){
-  const ul=document.getElementById('records_'+levelId);
-  const recs=getPublicRecords(levelId); ul.innerHTML='';
-  recs.forEach(r=>{
-    const li=document.createElement('li');
-    li.className='record';
-    li.innerHTML=`<div>${escapeHTML(r.name)} — ${r.progress}% in ${r.attempts} tries</div><div class="muted">${new Date(r.ts).toLocaleString()}</div>`;
-    ul.appendChild(li);
-  });
-  document.getElementById('pubcount_'+levelId).textContent=recs.length;
-}
+    // --- Level Rendern ---
+    function renderLevels(){
+      const container = document.getElementById("levels");
+      container.innerHTML = "";
+      levels.forEach(level=>{
+        const div = document.createElement("div");
+        div.className="level";
+        div.innerHTML = `
+          <h2>${level.name} <small>${level.difficulty}</small></h2>
+          <p>Creator: ${level.creator}</p>
+          <h4>Rekorde:</h4>
+          <div id="records-${level.id}"></div>
+          <div>
+            <input id="name-${level.id}" placeholder="Name">
+            <input id="percent-${level.id}" type="number" placeholder="%">
+            <input id="att-${level.id}" type="number" placeholder="Attempts">
+            <button onclick="submitRecord(${level.id})">Einreichen</button>
+          </div>
+        `;
+        container.appendChild(div);
+        renderRecords(level.id);
+      });
+    }
 
-/* ----- Submit Handler (geht in Pending) ----- */
-function handleSubmit(levelId){
-  const name=document.getElementById('name_'+levelId).value.trim();
-  const progress=document.getElementById('progress_'+levelId).value;
-  const attempts=document.getElementById('attempts_'+levelId).value;
-  if(!name||progress===''||attempts===''){alert('Bitte alles ausfüllen.');return;}
-  addPending(levelId,{name,progress:Number(progress),attempts:Number(attempts),ts:Date.now()});
-  alert('Run eingereicht — wartet auf Owner-Approval.');
-  document.getElementById('name_'+levelId).value='';
-  document.getElementById('progress_'+levelId).value='';
-  document.getElementById('attempts_'+levelId).value='';
-  renderPendingList();
-}
+    function renderRecords(levelId){
+      const recDiv = document.getElementById("records-"+levelId);
+      recDiv.innerHTML="";
+      if(records[levelId]){
+        records[levelId].forEach(r=>{
+          const p=document.createElement("p");
+          p.className="record";
+          p.textContent=`${r.name} — ${r.percent}% in ${r.attempts} Attempts`;
+          recDiv.appendChild(p);
+        });
+      }
+    }
 
-/* ----- Pending / Owner Panel ----- */
-function renderPendingList(){
-  const list=document.getElementById('pendingList'); const pending=getPending();
-  if(!isOwner()){ list.innerHTML='<div class="muted">Nicht im Owner-Mode.</div>'; return; }
-  if(pending.length===0){ list.innerHTML='<div class="muted">Keine Pending-Runs.</div>'; return; }
-  list.innerHTML='';
-  pending.forEach(item=>{
-    const lvl=levels.find(x=>x.id===item.levelId)||{name:'Unbekannt'};
-    const div=document.createElement('div');
-    div.className='record';
-    div.innerHTML=`<div>${escapeHTML(lvl.name)}: ${escapeHTML(item.record.name)} — ${item.record.progress}% in ${item.record.attempts} tries</div>`;
-    const btns=document.createElement('div');
-    const approve=document.createElement('button'); approve.textContent='Approve'; approve.className='smallbtn approve';
-    approve.onclick=()=>{ approvePending(item.id); };
-    const reject=document.createElement('button'); reject.textContent='Reject'; reject.className='smallbtn reject';
-    reject.onclick=()=>{ rejectPending(item.id); };
-    btns.appendChild(approve); btns.appendChild(reject);
-    div.appendChild(btns);
-    list.appendChild(div);
-  });
-}
-function approvePending(pid){
-  let p=getPending(); const idx=p.findIndex(x=>x.id===pid); if(idx===-1)return;
-  savePublicRecord(p[idx].levelId,{...p[idx].record,ts:Date.now()});
-  p.splice(idx,1); savePending(p); renderPendingList(); renderPublicRecords(p[idx]?.levelId||0);
-}
-function rejectPending(pid){
-  let p=getPending(); const idx=p.findIndex(x=>x.id===pid); if(idx===-1)return;
-  p.splice(idx,1); savePending(p); renderPendingList();
-}
+    function submitRecord(levelId){
+      const name=document.getElementById("name-"+levelId).value;
+      const percent=document.getElementById("percent-"+levelId).value;
+      const att=document.getElementById("att-"+levelId).value;
+      if(!name||!percent||!att) return alert("Bitte alles ausfüllen!");
+      if(!records[levelId]) records[levelId]=[];
+      const run={name,percent,attempts:att};
+      records[levelId].push(run);
+      saveRecords();
+      renderRecords(levelId);
+      if(isOwner) addPending(levelId, run);
+    }
 
-/* ----- Login UI ----- */
-const loginBtn=document.getElementById('ownerLoginBtn');
-const logoutBtn=document.getElementById('ownerLogoutBtn');
-const codeInput=document.getElementById('ownerCodeInput');
-const badge=document.getElementById('ownerBadge');
-loginBtn.onclick=()=>{ if(codeInput.value.trim()===OWNER_CODE){setOwner(true);alert('Owner-Login erfolgreich!');}else alert('Falscher Code.'); };
-logoutBtn.onclick=()=>{ setOwner(false); alert('Owner-Logout.'); };
-function updateOwnerUI(){
-  if(isOwner()){ badge.style.display='inline-block'; logoutBtn.style.display='inline-block'; loginBtn.style.display='none'; codeInput.style.display='none'; document.getElementById('ownerPanel').style.display='block'; }
-  else{ badge.style.display='none'; logoutBtn.style.display='none'; loginBtn.style.display='inline-block'; codeInput.style.display='inline-block'; document.getElementById('ownerPanel').style.display='none'; }
-  renderPendingList();
-}
+    // --- Owner Mode ---
+    const ownerCode="41342";
+    let isOwner=false;
 
-/* ----- Helpers ----- */
-function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    document.getElementById("ownerLoginBtn").onclick=()=>{
+      const val=document.getElementById("ownerCodeInput").value;
+      if(val===ownerCode){
+        isOwner=true;
+        document.getElementById("ownerStatus").textContent="✅ Eingeloggt als Owner";
+        document.getElementById("ownerLogoutBtn").style.display="inline-block";
+        document.getElementById("ownerLoginBtn").style.display="none";
+        document.getElementById("ownerSection").classList.remove("ghost");
+        renderPending();
+      } else {
+        alert("❌ Falscher Code!");
+      }
+    };
+    document.getElementById("ownerLogoutBtn").onclick=()=>{
+      isOwner=false;
+      document.getElementById("ownerStatus").textContent="❌ Nicht eingeloggt";
+      document.getElementById("ownerLogoutBtn").style.display="none";
+      document.getElementById("ownerLoginBtn").style.display="inline-block";
+      document.getElementById("ownerSection").classList.add("ghost");
+    };
 
-/* ----- Init ----- */
-render(); updateOwnerUI(); renderPendingList();
-</script>
+    // --- Pending Runs im Owner Bereich ---
+    function renderPending(){
+      const box=document.getElementById("pendingRuns");
+      box.innerHTML="";
+      for(const lid in records){
+        records[lid].forEach(r=>{
+          const p=document.createElement("p");
+          const level=levels.find(l=>l.id==lid);
+          p.textContent=`[${level.name}] ${r.name} — ${r.percent}% in ${r.attempts} Attempts`;
+          box.appendChild(p);
+        });
+      }
+    }
+    function addPending(levelId, run){
+      if(isOwner) renderPending();
+    }
+
+    // --- Init ---
+    renderLevels();
+  </script>
 </body>
 </html>
